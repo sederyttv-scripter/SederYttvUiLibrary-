@@ -97,8 +97,10 @@ function library:AddButton(tab, buttonName, callback)
     local Button = Instance.new("TextButton")
     Button.Text = buttonName
     Button.Size = UDim2.new(0, 200, 0, 50)
-    Button.BackgroundColor3 = tab.Parent.theme.ButtonBackground
-    Button.TextColor3 = tab.Parent.theme.ButtonText
+
+    -- Corrected: Access theme from the window (tab.Parent.Parent) instead of the frame
+    Button.BackgroundColor3 = tab.Parent.Parent.theme.ButtonBackground
+    Button.TextColor3 = tab.Parent.Parent.theme.ButtonText
     Button.Parent = tab
 
     Button.MouseButton1Click:Connect(callback)
