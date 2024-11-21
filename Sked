@@ -1,29 +1,54 @@
 local library = {}
 
-function library:CreateWindow(options)
+-- Function to create a library with a title and theme
+function library:CreateLib(title, theme)
     -- Create a ScreenGui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    -- Set the theme colors
+    local themeColors = {
+        DarkTheme = {
+            Background = Color3.fromRGB(30, 30, 30),
+            TitleBackground = Color3.fromRGB(40, 40, 40),
+            TitleText = Color3.fromRGB(255, 255, 255),
+            ButtonBackground = Color3.fromRGB(60, 60, 60),
+            ButtonText = Color3.fromRGB(255, 255, 255),
+            TabBackground = Color3.fromRGB(50, 50, 50)
+        },
+        LightTheme = {
+            Background = Color3.fromRGB(255, 255, 255),
+            TitleBackground = Color3.fromRGB(220, 220, 220),
+            TitleText = Color3.fromRGB(0, 0, 0),
+            ButtonBackground = Color3.fromRGB(200, 200, 200),
+            ButtonText = Color3.fromRGB(0, 0, 0),
+            TabBackground = Color3.fromRGB(180, 180, 180)
+        }
+    }
+
+    -- Use DarkTheme by default if the specified theme is not valid
+    local themeToUse = themeColors[theme] or themeColors.DarkTheme
 
     -- Create the main window frame
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 400, 0, 300)
     MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    MainFrame.BackgroundColor3 = themeToUse.Background
     MainFrame.Parent = ScreenGui
 
     -- Add a title
     local Title = Instance.new("TextLabel")
-    Title.Text = options.Title or "UI Library"
+    Title.Text = title or "UI Library"
     Title.Size = UDim2.new(1, 0, 0, 30)
-    Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.BackgroundColor3 = themeToUse.TitleBackground
+    Title.TextColor3 = themeToUse.TitleText
     Title.Parent = MainFrame
 
     -- Return the window object
     return {
         MainFrame = MainFrame,
-        Tabs = {}
+        Tabs = {},
+        theme = themeToUse -- Store the theme for later use
     }
 end
 
@@ -32,18 +57,23 @@ function library:CreateTab(window, tabName)
     local TabButton = Instance.new("TextButton")
     TabButton.Text = tabName
     TabButton.Size = UDim2.new(0, 100, 0, 30)
-    TabButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    TabButton.BackgroundColor3 = window.theme.TabBackground
     TabButton.Parent = window.MainFrame
 
-    -- Add tab content
-    local TabContent = Instance.new("Frame")
+    -- Create a ScrollingFrame for the tab content
+    local TabContent = Instance.new("ScrollingFrame")
     TabContent.Size = UDim2.new(1, 0, 1, -30)
     TabContent.Position = UDim2.new(0, 0, 0, 30)
     TabContent.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     TabContent.Visible = false
     TabContent.Parent = window.MainFrame
 
-    -- Use UIListLayout to arrange buttons vertically
+    -- Set scrolling properties
+    TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Initially no scroll
+    TabContent.ScrollBarThickness = 10  -- Thickness of the scrollbar
+    TabContent.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left  -- Optional: change position of scrollbar
+
+    -- Use UIListLayout to arrange buttons vertically within the ScrollingFrame
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 10)  -- Adds spacing between buttons
     layout.FillDirection = Enum.FillDirection.Vertical
@@ -67,11 +97,14 @@ function library:AddButton(tab, buttonName, callback)
     local Button = Instance.new("TextButton")
     Button.Text = buttonName
     Button.Size = UDim2.new(0, 200, 0, 50)
-    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.BackgroundColor3 = tab.Parent.Parent.theme.ButtonBackground -- Correct reference to theme
+    Button.TextColor3 = tab.Parent.Parent.theme.ButtonText  -- Correct reference to theme
     Button.Parent = tab
 
     Button.MouseButton1Click:Connect(callback)
+
+    -- Update the ScrollingFrame's canvas size based on the number of buttons
+    tab.CanvasSize = UDim2.new(0, 0, 0, tab.UIListLayout.AbsoluteContentSize.Y)
 end
 
 return library
