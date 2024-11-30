@@ -2,6 +2,14 @@ local UILibrary = {}
 UILibrary.__index = UILibrary
 
 function UILibrary:CreateWindow(title, size)
+    -- Get the screen size
+    local screenWidth = game:GetService("Workspace").CurrentCamera.ViewportSize.X
+    local screenHeight = game:GetService("Workspace").CurrentCamera.ViewportSize.Y
+
+    -- Calculate the window size as a percentage of the screen size
+    local windowWidth = screenWidth * 0.7 -- 70% of screen width
+    local windowHeight = screenHeight * 0.5 -- 50% of screen height
+
     -- Create ScreenGui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "ExecutorUI"
@@ -11,8 +19,8 @@ function UILibrary:CreateWindow(title, size)
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
-    MainFrame.Size = UDim2.new(0, size.X, 0, size.Y)
-    MainFrame.Position = UDim2.new(0.5, -size.X / 2, 0.5, -size.Y / 2)
+    MainFrame.Size = UDim2.new(0, windowWidth, 0, windowHeight)
+    MainFrame.Position = UDim2.new(0.5, -windowWidth / 2, 0.5, -windowHeight / 2)
     MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     MainFrame.BorderSizePixel = 0
     MainFrame.Visible = true
