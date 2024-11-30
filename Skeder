@@ -1,7 +1,7 @@
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
--- Create the Window function with support for tabs
+-- Create the Window function with support for tabs and draggable functionality
 function UILibrary:CreateWindow(title, size)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "ExecutorUI"
@@ -14,6 +14,7 @@ function UILibrary:CreateWindow(title, size)
     MainFrame.Position = UDim2.new(0.5, -size.X / 2, 0.5, -size.Y / 2)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 0
+    MainFrame.Active = true
 
     local TitleBar = Instance.new("TextLabel")
     TitleBar.Name = "TitleBar"
@@ -23,6 +24,47 @@ function UILibrary:CreateWindow(title, size)
     TitleBar.Text = title
     TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleBar.TextSize = 16
+    TitleBar.Active = true -- Required for dragging
+    TitleBar.Draggable = true -- Allows desktop dragging
+
+    -- Enable mobile dragging
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    TitleBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
 
     local TabFrame = Instance.new("Frame")
     TabFrame.Name = "TabFrame"
@@ -38,7 +80,7 @@ function UILibrary:CreateWindow(title, size)
     TabButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
     TabButtonsFrame.Position = UDim2.new(0, 0, 0, 30)
     TabButtonsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    
+
     local Tabs = {}
 
     function self:AddTab(tabName)
@@ -51,27 +93,27 @@ function UILibrary:CreateWindow(title, size)
         TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
         TabButton.TextSize = 14
         TabButton.AutoButtonColor = false
-        
+
         local TabContent = Instance.new("Frame")
         TabContent.Name = tabName.."Content"
         TabContent.Parent = TabFrame
         TabContent.Size = UDim2.new(1, 0, 1, 0)
         TabContent.BackgroundTransparency = 1
         TabContent.Visible = false
-        
+
         -- Store tab reference
         Tabs[tabName] = TabContent
-        
+
         TabButton.MouseButton1Click:Connect(function()
             -- Hide all tabs
             for _, tab in pairs(Tabs) do
                 tab.Visible = false
             end
-            
+
             -- Show selected tab
             TabContent.Visible = true
         end)
-        
+
         return TabContent
     end
 
