@@ -1,6 +1,7 @@
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
+-- Create the Window function with support for tabs
 function UILibrary:CreateWindow(title, size)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "ExecutorUI"
@@ -14,11 +15,6 @@ function UILibrary:CreateWindow(title, size)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 0
 
-    -- Add UICorner for rounded corners
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
-    Corner.Parent = MainFrame
-
     local TitleBar = Instance.new("TextLabel")
     TitleBar.Name = "TitleBar"
     TitleBar.Parent = MainFrame
@@ -28,68 +24,93 @@ function UILibrary:CreateWindow(title, size)
     TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleBar.TextSize = 16
 
-    -- Make the window draggable on mobile
-    local dragging = false
-    local dragInput, mousePos, framePos
+    local TabFrame = Instance.new("Frame")
+    TabFrame.Name = "TabFrame"
+    TabFrame.Parent = MainFrame
+    TabFrame.Size = UDim2.new(1, 0, 1, -30)
+    TabFrame.Position = UDim2.new(0, 0, 0, 30)
+    TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    TabFrame.BorderSizePixel = 0
 
-    TitleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            mousePos = input.Position
-            framePos = MainFrame.Position
-            input.Changed:Connect(function()
-                if dragging then
-                    local delta = input.Position - mousePos
-                    MainFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
-                end
-            end)
-        end
-    end)
+    local TabButtonsFrame = Instance.new("Frame")
+    TabButtonsFrame.Name = "TabButtons"
+    TabButtonsFrame.Parent = MainFrame
+    TabButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
+    TabButtonsFrame.Position = UDim2.new(0, 0, 0, 30)
+    TabButtonsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    
+    local Tabs = {}
 
-    TitleBar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
+    function self:AddTab(tabName)
+        local TabButton = Instance.new("TextButton")
+        TabButton.Name = tabName
+        TabButton.Parent = TabButtonsFrame
+        TabButton.Size = UDim2.new(0, 100, 0, 30)
+        TabButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        TabButton.Text = tabName
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabButton.TextSize = 14
+        TabButton.AutoButtonColor = false
+        
+        local TabContent = Instance.new("Frame")
+        TabContent.Name = tabName.."Content"
+        TabContent.Parent = TabFrame
+        TabContent.Size = UDim2.new(1, 0, 1, 0)
+        TabContent.BackgroundTransparency = 1
+        TabContent.Visible = false
+        
+        -- Store tab reference
+        Tabs[tabName] = TabContent
+        
+        TabButton.MouseButton1Click:Connect(function()
+            -- Hide all tabs
+            for _, tab in pairs(Tabs) do
+                tab.Visible = false
+            end
+            
+            -- Show selected tab
+            TabContent.Visible = true
+        end)
+        
+        return TabContent
+    end
 
-    return setmetatable({MainFrame = MainFrame, Components = {}}, UILibrary)
+    -- Default tab shown
+    if #Tabs == 0 then
+        self:AddTab("Default")
+    end
+
+    return setmetatable({MainFrame = MainFrame, Components = {}, Tabs = Tabs}, UILibrary)
 end
 
-function UILibrary:AddLabel(text)
+-- Add Label function (works inside tabs)
+function UILibrary:AddLabel(text, tabName)
+    local TabContent = self.Tabs[tabName]
     local Label = Instance.new("TextLabel")
     Label.Name = "Label"
-    Label.Parent = self.MainFrame
+    Label.Parent = TabContent
     Label.Size = UDim2.new(1, -10, 0, 20)
     Label.Position = UDim2.new(0, 5, 0, #self.Components * 25 + 35)
     Label.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Label.Text = text
     Label.TextColor3 = Color3.fromRGB(255, 255, 255)
     Label.TextSize = 14
-
-    -- Add UICorner to the Label
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 5)
-    Corner.Parent = Label
-
     table.insert(self.Components, Label)
     return Label
 end
 
-function UILibrary:AddButton(text, callback)
+-- Add Button function (works inside tabs)
+function UILibrary:AddButton(text, tabName, callback)
+    local TabContent = self.Tabs[tabName]
     local Button = Instance.new("TextButton")
     Button.Name = "Button"
-    Button.Parent = self.MainFrame
+    Button.Parent = TabContent
     Button.Size = UDim2.new(1, -10, 0, 30)
     Button.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
     Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     Button.Text = text
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.TextSize = 14
-
-    -- Add UICorner to the Button
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 5)
-    Corner.Parent = Button
 
     Button.MouseButton1Click:Connect(function()
         if callback then callback() end
@@ -99,18 +120,15 @@ function UILibrary:AddButton(text, callback)
     return Button
 end
 
-function UILibrary:AddToggle(text, default, callback)
+-- Add Toggle function (works inside tabs)
+function UILibrary:AddToggle(text, default, tabName, callback)
+    local TabContent = self.Tabs[tabName]
     local Toggle = Instance.new("Frame")
     Toggle.Name = "Toggle"
-    Toggle.Parent = self.MainFrame
+    Toggle.Parent = TabContent
     Toggle.Size = UDim2.new(1, -10, 0, 30)
     Toggle.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
     Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-
-    -- Add UICorner to the Toggle Frame
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 5)
-    Corner.Parent = Toggle
 
     local ToggleLabel = Instance.new("TextLabel")
     ToggleLabel.Name = "ToggleLabel"
@@ -130,11 +148,6 @@ function UILibrary:AddToggle(text, default, callback)
     ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
     ToggleButton.Text = ""
 
-    -- Add UICorner to the Toggle Button
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 5)
-    Corner.Parent = ToggleButton
-
     local toggled = default
     ToggleButton.MouseButton1Click:Connect(function()
         toggled = not toggled
@@ -144,16 +157,6 @@ function UILibrary:AddToggle(text, default, callback)
 
     table.insert(self.Components, Toggle)
     return Toggle
-end
-
-function UILibrary:AddUIList()
-    local UIList = Instance.new("UIListLayout")
-    UIList.Parent = self.MainFrame
-    UIList.Padding = UDim.new(0, 5)
-    UIList.FillDirection = Enum.FillDirection.Vertical
-    UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    UIList.SortOrder = Enum.SortOrder.LayoutOrder
-    return UIList
 end
 
 return UILibrary
