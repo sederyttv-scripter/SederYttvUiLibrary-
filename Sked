@@ -1,4 +1,4 @@
--- Executor UI Library
+-- Source is open Library
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
@@ -14,15 +14,59 @@ function UILibrary:CreateWindow(title, size)
     MainFrame.Position = UDim2.new(0.5, -size.X / 2, 0.5, -size.Y / 2)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 0
+    MainFrame.Visible = true
+    MainFrame.ClipsDescendants = true
 
-    local TitleBar = Instance.new("TextLabel")
+    local TitleBar = Instance.new("Frame")
     TitleBar.Name = "TitleBar"
     TitleBar.Parent = MainFrame
     TitleBar.Size = UDim2.new(1, 0, 0, 30)
     TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    TitleBar.Text = title
-    TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleBar.TextSize = 16
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Name = "TitleLabel"
+    TitleLabel.Parent = TitleBar
+    TitleLabel.Size = UDim2.new(1, -40, 1, 0)
+    TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = title
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextSize = 16
+    TitleLabel.Font = Enum.Font.SourceSans
+
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Parent = TitleBar
+    CloseButton.Size = UDim2.new(0, 30, 1, 0)
+    CloseButton.Position = UDim2.new(1, -30, 0, 0)
+    CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    CloseButton.Text = "X"
+    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.TextSize = 14
+    CloseButton.Font = Enum.Font.SourceSans
+
+    local OpenButton = Instance.new("TextButton")
+    OpenButton.Name = "OpenButton"
+    OpenButton.Parent = ScreenGui
+    OpenButton.Size = UDim2.new(0, 100, 0, 30)
+    OpenButton.Position = UDim2.new(0, 10, 0, 10)
+    OpenButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    OpenButton.Text = "Open"
+    OpenButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    OpenButton.TextSize = 14
+    OpenButton.Font = Enum.Font.SourceSans
+    OpenButton.Visible = false
+
+    -- Toggle visibility
+    CloseButton.MouseButton1Click:Connect(function()
+        MainFrame.Visible = false
+        OpenButton.Visible = true
+    end)
+
+    OpenButton.MouseButton1Click:Connect(function()
+        MainFrame.Visible = true
+        OpenButton.Visible = false
+    end)
 
     return setmetatable({MainFrame = MainFrame, Components = {}}, UILibrary)
 end
@@ -37,6 +81,8 @@ function UILibrary:AddLabel(text)
     Label.Text = text
     Label.TextColor3 = Color3.fromRGB(255, 255, 255)
     Label.TextSize = 14
+    Label.Font = Enum.Font.SourceSans
+    Label.BorderSizePixel = 0
     table.insert(self.Components, Label)
     return Label
 end
@@ -51,6 +97,7 @@ function UILibrary:AddButton(text, callback)
     Button.Text = text
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.TextSize = 14
+    Button.Font = Enum.Font.SourceSans
 
     Button.MouseButton1Click:Connect(function()
         if callback then callback() end
@@ -77,6 +124,7 @@ function UILibrary:AddToggle(text, default, callback)
     ToggleLabel.Text = text
     ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     ToggleLabel.TextSize = 14
+    ToggleLabel.Font = Enum.Font.SourceSans
 
     local ToggleButton = Instance.new("TextButton")
     ToggleButton.Name = "ToggleButton"
@@ -95,16 +143,6 @@ function UILibrary:AddToggle(text, default, callback)
 
     table.insert(self.Components, Toggle)
     return Toggle
-end
-
-function UILibrary:AddUIList()
-    local UIList = Instance.new("UIListLayout")
-    UIList.Parent = self.MainFrame
-    UIList.Padding = UDim.new(0, 5)
-    UIList.FillDirection = Enum.FillDirection.Vertical
-    UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    UIList.SortOrder = Enum.SortOrder.LayoutOrder
-    return UIList
 end
 
 return UILibrary
