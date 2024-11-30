@@ -86,6 +86,7 @@ end
 -- Add Label function (works inside tabs)
 function UILibrary:AddLabel(text, tabName)
     local TabContent = self.Tabs[tabName]
+    if not TabContent then return end -- Check if the tab exists
     local Label = Instance.new("TextLabel")
     Label.Name = "Label"
     Label.Parent = TabContent
@@ -102,6 +103,7 @@ end
 -- Add Button function (works inside tabs)
 function UILibrary:AddButton(text, tabName, callback)
     local TabContent = self.Tabs[tabName]
+    if not TabContent then return end -- Check if the tab exists
     local Button = Instance.new("TextButton")
     Button.Name = "Button"
     Button.Parent = TabContent
@@ -123,6 +125,7 @@ end
 -- Add Toggle function (works inside tabs)
 function UILibrary:AddToggle(text, default, tabName, callback)
     local TabContent = self.Tabs[tabName]
+    if not TabContent then return end -- Check if the tab exists
     local Toggle = Instance.new("Frame")
     Toggle.Name = "Toggle"
     Toggle.Parent = TabContent
