@@ -2,204 +2,158 @@ local UILibrary = {}
 UILibrary.__index = UILibrary
 
 function UILibrary:CreateWindow(title, size)
-    -- Create ScreenGui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "ExecutorUI"
     ScreenGui.Parent = game:GetService("CoreGui")
 
-    -- Create Main Frame (with rounded corners and shadow effect)
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
     MainFrame.Size = UDim2.new(0, size.X, 0, size.Y)
     MainFrame.Position = UDim2.new(0.5, -size.X / 2, 0.5, -size.Y / 2)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Visible = true
-    MainFrame.ClipsDescendants = true
-    MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    MainFrame.BackgroundTransparency = 0.1
-    MainFrame.ZIndex = 5
 
-    -- Title Bar (Improved design with gradient)
-    local TitleBar = Instance.new("Frame")
+    -- Add UICorner for rounded corners
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.Parent = MainFrame
+
+    local TitleBar = Instance.new("TextLabel")
     TitleBar.Name = "TitleBar"
     TitleBar.Parent = MainFrame
-    TitleBar.Size = UDim2.new(1, 0, 0, 40)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    TitleBar.BackgroundTransparency = 0
-    TitleBar.ZIndex = 10
+    TitleBar.Size = UDim2.new(1, 0, 0, 30)
+    TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    TitleBar.Text = title
+    TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleBar.TextSize = 16
 
-    -- Title Label with more appealing font and size
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Name = "TitleLabel"
-    TitleLabel.Parent = TitleBar
-    TitleLabel.Size = UDim2.new(1, -40, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 10, 0, 0)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = title
-    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleLabel.TextSize = 18
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
-
-    -- Close Button (Red color, rounded)
-    local CloseButton = Instance.new("TextButton")
-    CloseButton.Name = "CloseButton"
-    CloseButton.Parent = TitleBar
-    CloseButton.Size = UDim2.new(0, 40, 1, 0)
-    CloseButton.Position = UDim2.new(1, -40, 0, 0)
-    CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    CloseButton.Text = "X"
-    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CloseButton.TextSize = 16
-    CloseButton.Font = Enum.Font.GothamBold
-    CloseButton.ZIndex = 10
-
-    -- Add UICorner to make the button rounded
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 10)  -- Adjust the radius for more or less rounding
-    UICorner.Parent = CloseButton
-
-    -- Draggable functionality for mobile and desktop
-    local dragStartPos = nil
+    -- Make the window draggable on mobile
     local dragging = false
-    local offset = Vector2.new(0, 0)
+    local dragInput, mousePos, framePos
 
-    -- Detect touch or mouse input for dragging
     TitleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
-            dragStartPos = input.Position
-            offset = MainFrame.Position - UDim2.new(0, dragStartPos.X, 0, dragStartPos.Y)
-        end
-    end)
-
-    TitleBar.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
-            local delta = input.Position - dragStartPos
-            MainFrame.Position = UDim2.new(0, offset.X + delta.X, 0, offset.Y + delta.Y)
+            mousePos = input.Position
+            framePos = MainFrame.Position
+            input.Changed:Connect(function()
+                if dragging then
+                    local delta = input.Position - mousePos
+                    MainFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+                end
+            end)
         end
     end)
 
     TitleBar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
         end
     end)
 
-    -- Open Button (for toggling visibility)
-    local OpenButton = Instance.new("TextButton")
-    OpenButton.Name = "OpenButton"
-    OpenButton.Parent = ScreenGui
-    OpenButton.Size = UDim2.new(0, 100, 0, 40)
-    OpenButton.Position = UDim2.new(0, 10, 0, 10)
-    OpenButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    OpenButton.Text = "Open UI"
-    OpenButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    OpenButton.TextSize = 14
-    OpenButton.Font = Enum.Font.Gotham
-    OpenButton.ZIndex = 20
-    OpenButton.Visible = false
+    return setmetatable({MainFrame = MainFrame, Components = {}}, UILibrary)
+end
 
-    -- Toggle visibility of the window
-    CloseButton.MouseButton1Click:Connect(function()
-        MainFrame.Visible = false
-        OpenButton.Visible = true
+function UILibrary:AddLabel(text)
+    local Label = Instance.new("TextLabel")
+    Label.Name = "Label"
+    Label.Parent = self.MainFrame
+    Label.Size = UDim2.new(1, -10, 0, 20)
+    Label.Position = UDim2.new(0, 5, 0, #self.Components * 25 + 35)
+    Label.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.TextSize = 14
+
+    -- Add UICorner to the Label
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 5)
+    Corner.Parent = Label
+
+    table.insert(self.Components, Label)
+    return Label
+end
+
+function UILibrary:AddButton(text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Name = "Button"
+    Button.Parent = self.MainFrame
+    Button.Size = UDim2.new(1, -10, 0, 30)
+    Button.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
+    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 14
+
+    -- Add UICorner to the Button
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 5)
+    Corner.Parent = Button
+
+    Button.MouseButton1Click:Connect(function()
+        if callback then callback() end
     end)
 
-    OpenButton.MouseButton1Click:Connect(function()
-        MainFrame.Visible = true
-        OpenButton.Visible = false
+    table.insert(self.Components, Button)
+    return Button
+end
+
+function UILibrary:AddToggle(text, default, callback)
+    local Toggle = Instance.new("Frame")
+    Toggle.Name = "Toggle"
+    Toggle.Parent = self.MainFrame
+    Toggle.Size = UDim2.new(1, -10, 0, 30)
+    Toggle.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
+    Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    -- Add UICorner to the Toggle Frame
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 5)
+    Corner.Parent = Toggle
+
+    local ToggleLabel = Instance.new("TextLabel")
+    ToggleLabel.Name = "ToggleLabel"
+    ToggleLabel.Parent = Toggle
+    ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+    ToggleLabel.Position = UDim2.new(0, 5, 0, 0)
+    ToggleLabel.BackgroundTransparency = 1
+    ToggleLabel.Text = text
+    ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleLabel.TextSize = 14
+
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Name = "ToggleButton"
+    ToggleButton.Parent = Toggle
+    ToggleButton.Size = UDim2.new(0.2, -5, 0.8, 0)
+    ToggleButton.Position = UDim2.new(0.8, 0, 0.1, 0)
+    ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+    ToggleButton.Text = ""
+
+    -- Add UICorner to the Toggle Button
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 5)
+    Corner.Parent = ToggleButton
+
+    local toggled = default
+    ToggleButton.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        ToggleButton.BackgroundColor3 = toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        if callback then callback(toggled) end
     end)
 
-    -- Add a method to change the window title dynamically
-    local function SetTitle(newTitle)
-        TitleLabel.Text = newTitle
-    end
+    table.insert(self.Components, Toggle)
+    return Toggle
+end
 
-    -- Add Label
-    function UILibrary:AddLabel(text)
-        local Label = Instance.new("TextLabel")
-        Label.Name = "Label"
-        Label.Parent = MainFrame
-        Label.Size = UDim2.new(1, -20, 0, 30)
-        Label.Position = UDim2.new(0, 10, 0, #self.Components * 40 + 40)
-        Label.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        Label.Text = text
-        Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Label.TextSize = 14
-        Label.Font = Enum.Font.Gotham
-        Label.TextXAlignment = Enum.TextXAlignment.Left
-        Label.TextYAlignment = Enum.TextYAlignment.Center
-        table.insert(self.Components, Label)
-        return Label
-    end
-
-    -- Add Button
-    function UILibrary:AddButton(text, callback)
-        local Button = Instance.new("TextButton")
-        Button.Name = "Button"
-        Button.Parent = MainFrame
-        Button.Size = UDim2.new(1, -20, 0, 40)
-        Button.Position = UDim2.new(0, 10, 0, #self.Components * 50 + 40)
-        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Button.Text = text
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Button.TextSize = 16
-        Button.Font = Enum.Font.Gotham
-        Button.ZIndex = 10
-
-        Button.MouseButton1Click:Connect(function()
-            if callback then callback() end
-        end)
-
-        table.insert(self.Components, Button)
-        return Button
-    end
-
-    -- Add Toggle
-    function UILibrary:AddToggle(text, default, callback)
-        local Toggle = Instance.new("Frame")
-        Toggle.Name = "Toggle"
-        Toggle.Parent = MainFrame
-        Toggle.Size = UDim2.new(1, -20, 0, 40)
-        Toggle.Position = UDim2.new(0, 10, 0, #self.Components * 50 + 40)
-        Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-
-        local ToggleLabel = Instance.new("TextLabel")
-        ToggleLabel.Name = "ToggleLabel"
-        ToggleLabel.Parent = Toggle
-        ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
-        ToggleLabel.Position = UDim2.new(0, 5, 0, 0)
-        ToggleLabel.BackgroundTransparency = 1
-        ToggleLabel.Text = text
-        ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ToggleLabel.TextSize = 14
-        ToggleLabel.Font = Enum.Font.Gotham
-
-        local ToggleButton = Instance.new("TextButton")
-        ToggleButton.Name = "ToggleButton"
-        ToggleButton.Parent = Toggle
-        ToggleButton.Size = UDim2.new(0.2, -5, 0.8, 0)
-        ToggleButton.Position = UDim2.new(0.8, 0, 0.1, 0)
-        ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        ToggleButton.Text = ""
-
-        local toggled = default
-        ToggleButton.MouseButton1Click:Connect(function()
-            toggled = not toggled
-            ToggleButton.BackgroundColor3 = toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-            if callback then callback(toggled) end
-        end)
-
-        table.insert(self.Components, Toggle)
-        return Toggle
-    end
-
-    -- Return the window object
-    return setmetatable({MainFrame = MainFrame, SetTitle = SetTitle, Components = {}}, UILibrary)
+function UILibrary:AddUIList()
+    local UIList = Instance.new("UIListLayout")
+    UIList.Parent = self.MainFrame
+    UIList.Padding = UDim.new(0, 5)
+    UIList.FillDirection = Enum.FillDirection.Vertical
+    UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    UIList.SortOrder = Enum.SortOrder.LayoutOrder
+    return UIList
 end
 
 return UILibrary
