@@ -80,7 +80,14 @@ function UILibrary:CreateWindow(title, size)
     end
 
     -- Return the window object along with SetTitle function and other component functionalities
-    return setmetatable({MainFrame = MainFrame, SetTitle = SetTitle, Components = {}}, UILibrary)
+    return setmetatable({
+        MainFrame = MainFrame,
+        SetTitle = SetTitle,
+        Components = {},
+        AddLabel = self.AddLabel,
+        AddButton = self.AddButton,
+        AddToggle = self.AddToggle
+    }, UILibrary)
 end
 
 function UILibrary:AddLabel(text)
