@@ -15,6 +15,8 @@ function UILibrary:CreateWindow(title, size)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 0
     MainFrame.Active = true
+    addRoundedCorners(MainFrame)  -- Add rounded corners
+    addShadowToFrame(MainFrame)   -- Add shadow for depth
 
     local TitleBar = Instance.new("TextLabel")
     TitleBar.Name = "TitleBar"
@@ -24,8 +26,15 @@ function UILibrary:CreateWindow(title, size)
     TitleBar.Text = title
     TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleBar.TextSize = 16
-    TitleBar.Active = true -- Required for dragging
-    TitleBar.Draggable = true -- Allows desktop dragging
+    TitleBar.Active = true
+    TitleBar.Draggable = true
+    TitleBar.TextButton = true
+    TitleBar.TextStrokeTransparency = 0.8
+    TitleBar.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+    TitleBar.BackgroundTransparency = 1
+    addGradientToFrame(TitleBar)  -- Add gradient to title bar
+    addRoundedCorners(TitleBar)  -- Add rounded corners
+    TitleBar.TextAlignment = Enum.TextAlignment.Center
 
     -- Enable mobile dragging
     local dragging = false
@@ -73,6 +82,8 @@ function UILibrary:CreateWindow(title, size)
     TabFrame.Position = UDim2.new(0, 0, 0, 30)
     TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     TabFrame.BorderSizePixel = 0
+    addRoundedCorners(TabFrame)  -- Add rounded corners
+    addGradientToFrame(TabFrame)  -- Add gradient to tabs
 
     local TabButtonsFrame = Instance.new("Frame")
     TabButtonsFrame.Name = "TabButtons"
@@ -80,6 +91,7 @@ function UILibrary:CreateWindow(title, size)
     TabButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
     TabButtonsFrame.Position = UDim2.new(0, 0, 0, 30)
     TabButtonsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    addRoundedCorners(TabButtonsFrame)  -- Add rounded corners
 
     local Tabs = {}
 
@@ -93,6 +105,8 @@ function UILibrary:CreateWindow(title, size)
         TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
         TabButton.TextSize = 14
         TabButton.AutoButtonColor = false
+        addRoundedCorners(TabButton)  -- Add rounded corners to tab buttons
+        addButtonHoverEffect(TabButton)  -- Add hover effect
 
         local TabContent = Instance.new("Frame")
         TabContent.Name = tabName.."Content"
@@ -155,6 +169,8 @@ function UILibrary:AddButton(text, tabName, callback)
     Button.Text = text
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.TextSize = 14
+    addRoundedCorners(Button)  -- Add rounded corners to buttons
+    addButtonHoverEffect(Button)  -- Add hover effect
 
     Button.MouseButton1Click:Connect(function()
         if callback then callback() end
@@ -174,6 +190,7 @@ function UILibrary:AddToggle(text, default, tabName, callback)
     Toggle.Size = UDim2.new(1, -10, 0, 30)
     Toggle.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
     Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    addRoundedCorners(Toggle)  -- Add rounded corners
 
     local ToggleLabel = Instance.new("TextLabel")
     ToggleLabel.Name = "ToggleLabel"
@@ -188,20 +205,59 @@ function UILibrary:AddToggle(text, default, tabName, callback)
     local ToggleButton = Instance.new("TextButton")
     ToggleButton.Name = "ToggleButton"
     ToggleButton.Parent = Toggle
-    ToggleButton.Size = UDim2.new(0.2, -5, 0.8, 0)
-    ToggleButton.Position = UDim2.new(0.8, 0, 0.1, 0)
+    ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
+    ToggleButton.Position = UDim2.new(0.8, 0, 0, 0)
     ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
     ToggleButton.Text = ""
+    ToggleButton.AutoButtonColor = false
+    addRoundedCorners(ToggleButton)  -- Add rounded corners to toggle button
 
-    local toggled = default
     ToggleButton.MouseButton1Click:Connect(function()
-        toggled = not toggled
-        ToggleButton.BackgroundColor3 = toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        if callback then callback(toggled) end
+        default = not default
+        ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        if callback then callback(default) end
     end)
 
     table.insert(self.Components, Toggle)
     return Toggle
+end
+
+-- Helper functions
+local function addGradientToFrame(frame)
+    local gradient = Instance.new("UIGradient")
+    gradient.Parent = frame
+    gradient.Color = ColorSequence.new(
+        Color3.fromRGB(40, 40, 40), 
+        Color3.fromRGB(60, 60, 60)
+    )
+    gradient.Rotation = 45
+end
+
+local function addRoundedCorners(obj)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = obj
+end
+
+local function addShadowToFrame(frame)
+    local shadow = Instance.new("ImageLabel")
+    shadow.Parent = frame
+    shadow.Size = UDim2.new(1, 6, 1, 6)
+    shadow.Position = UDim2.new(0, -3, 0, -3)
+    shadow.Image = "rbxassetid://6023426926"
+    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.BackgroundTransparency = 1
+    shadow.ZIndex = frame.ZIndex - 1
+end
+
+local function addButtonHoverEffect(button)
+    local originalColor = button.BackgroundColor3
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    end)
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = originalColor
+    end)
 end
 
 return UILibrary
