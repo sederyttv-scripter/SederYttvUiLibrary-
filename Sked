@@ -1,12 +1,14 @@
--- Source is open Library
+-- Enhanced Executor UI Library
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
 function UILibrary:CreateWindow(title, size)
+    -- Create ScreenGui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "ExecutorUI"
     ScreenGui.Parent = game:GetService("CoreGui")
 
+    -- Create Main Frame
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
@@ -17,12 +19,14 @@ function UILibrary:CreateWindow(title, size)
     MainFrame.Visible = true
     MainFrame.ClipsDescendants = true
 
+    -- Create Title Bar
     local TitleBar = Instance.new("Frame")
     TitleBar.Name = "TitleBar"
     TitleBar.Parent = MainFrame
     TitleBar.Size = UDim2.new(1, 0, 0, 30)
     TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 
+    -- Create Title Label
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Name = "TitleLabel"
     TitleLabel.Parent = TitleBar
@@ -34,6 +38,7 @@ function UILibrary:CreateWindow(title, size)
     TitleLabel.TextSize = 16
     TitleLabel.Font = Enum.Font.SourceSans
 
+    -- Create Close Button
     local CloseButton = Instance.new("TextButton")
     CloseButton.Name = "CloseButton"
     CloseButton.Parent = TitleBar
@@ -45,6 +50,7 @@ function UILibrary:CreateWindow(title, size)
     CloseButton.TextSize = 14
     CloseButton.Font = Enum.Font.SourceSans
 
+    -- Create Open Button (for toggling visibility)
     local OpenButton = Instance.new("TextButton")
     OpenButton.Name = "OpenButton"
     OpenButton.Parent = ScreenGui
@@ -68,7 +74,13 @@ function UILibrary:CreateWindow(title, size)
         OpenButton.Visible = false
     end)
 
-    return setmetatable({MainFrame = MainFrame, Components = {}}, UILibrary)
+    -- Add a method to change the window title dynamically
+    local function SetTitle(newTitle)
+        TitleLabel.Text = newTitle
+    end
+
+    -- Return the window object along with SetTitle function and other component functionalities
+    return setmetatable({MainFrame = MainFrame, SetTitle = SetTitle, Components = {}}, UILibrary)
 end
 
 function UILibrary:AddLabel(text)
