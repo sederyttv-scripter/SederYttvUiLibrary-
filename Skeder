@@ -1,263 +1,84 @@
-local UILibrary = {}
-UILibrary.__index = UILibrary
+-- Custom UI Library Module with UIGridLayout
+local Library = {}
 
--- Create the Window function with support for tabs and draggable functionality
-function UILibrary:CreateWindow(title, size)
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "ExecutorUI"
-    ScreenGui.Parent = game:GetService("CoreGui")
+function Library:NewWindow(title)
+    -- Create the window frame
+    local Window = Instance.new("Frame")
+    Window.Size = UDim2.new(0.3, 0, 0.4, 0)
+    Window.Position = UDim2.new(0.35, 0, 0.3, 0)
+    Window.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui
-    MainFrame.Size = UDim2.new(0, size.X, 0, size.Y)
-    MainFrame.Position = UDim2.new(0.5, -size.X / 2, 0.5, -size.Y / 2)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.Active = true
-    addRoundedCorners(MainFrame)  -- Add rounded corners
-    addShadowToFrame(MainFrame)   -- Add shadow for depth
+    -- Create a title for the window
+    local Title = Instance.new("TextLabel")
+    Title.Text = title
+    Title.Size = UDim2.new(1, 0, 0.1, 0)
+    Title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Parent = Window
 
-    local TitleBar = Instance.new("TextLabel")
-    TitleBar.Name = "TitleBar"
-    TitleBar.Parent = MainFrame
-    TitleBar.Size = UDim2.new(1, 0, 0, 30)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    TitleBar.Text = title
-    TitleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleBar.TextSize = 16
-    TitleBar.Active = true
-    TitleBar.Draggable = true
-    TitleBar.TextButton = true
-    TitleBar.TextStrokeTransparency = 0.8
-    TitleBar.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-    TitleBar.BackgroundTransparency = 1
-    addGradientToFrame(TitleBar)  -- Add gradient to title bar
-    addRoundedCorners(TitleBar)  -- Add rounded corners
-    TitleBar.TextAlignment = Enum.TextAlignment.Center
-
-    -- Enable mobile dragging
-    local dragging = false
-    local dragInput, dragStart, startPos
-
-    local function update(input)
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-
-    TitleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    TitleBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
-
-    local TabFrame = Instance.new("Frame")
-    TabFrame.Name = "TabFrame"
-    TabFrame.Parent = MainFrame
-    TabFrame.Size = UDim2.new(1, 0, 1, -30)
-    TabFrame.Position = UDim2.new(0, 0, 0, 30)
-    TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    TabFrame.BorderSizePixel = 0
-    addRoundedCorners(TabFrame)  -- Add rounded corners
-    addGradientToFrame(TabFrame)  -- Add gradient to tabs
-
-    local TabButtonsFrame = Instance.new("Frame")
-    TabButtonsFrame.Name = "TabButtons"
-    TabButtonsFrame.Parent = MainFrame
-    TabButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
-    TabButtonsFrame.Position = UDim2.new(0, 0, 0, 30)
-    TabButtonsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    addRoundedCorners(TabButtonsFrame)  -- Add rounded corners
-
-    local Tabs = {}
-
-    function self:AddTab(tabName)
-        local TabButton = Instance.new("TextButton")
-        TabButton.Name = tabName
-        TabButton.Parent = TabButtonsFrame
-        TabButton.Size = UDim2.new(0, 100, 0, 30)
-        TabButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        TabButton.Text = tabName
-        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        TabButton.TextSize = 14
-        TabButton.AutoButtonColor = false
-        addRoundedCorners(TabButton)  -- Add rounded corners to tab buttons
-        addButtonHoverEffect(TabButton)  -- Add hover effect
-
-        local TabContent = Instance.new("Frame")
-        TabContent.Name = tabName.."Content"
-        TabContent.Parent = TabFrame
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
-        TabContent.BackgroundTransparency = 1
-        TabContent.Visible = false
-
-        -- Store tab reference
-        Tabs[tabName] = TabContent
-
-        TabButton.MouseButton1Click:Connect(function()
-            -- Hide all tabs
-            for _, tab in pairs(Tabs) do
-                tab.Visible = false
-            end
-
-            -- Show selected tab
-            TabContent.Visible = true
-        end)
-
-        return TabContent
-    end
-
-    -- Default tab shown
-    if #Tabs == 0 then
-        self:AddTab("Default")
-    end
-
-    return setmetatable({MainFrame = MainFrame, Components = {}, Tabs = Tabs}, UILibrary)
+    -- Parent the window to the ScreenGui
+    Window.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
+    
+    return Window
 end
 
--- Add Label function (works inside tabs)
-function UILibrary:AddLabel(text, tabName)
-    local TabContent = self.Tabs[tabName]
-    if not TabContent then return end -- Check if the tab exists
-    local Label = Instance.new("TextLabel")
-    Label.Name = "Label"
-    Label.Parent = TabContent
-    Label.Size = UDim2.new(1, -10, 0, 20)
-    Label.Position = UDim2.new(0, 5, 0, #self.Components * 25 + 35)
-    Label.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextSize = 14
-    table.insert(self.Components, Label)
-    return Label
+function Library:NewSection(Window, sectionTitle)
+    -- Create a section for the window
+    local Section = Instance.new("Frame")
+    Section.Size = UDim2.new(1, 0, 0.5, 0)
+    Section.Position = UDim2.new(0, 0, 0.1, 0)
+    Section.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    -- Create a title for the section
+    local SectionTitle = Instance.new("TextLabel")
+    SectionTitle.Text = sectionTitle
+    SectionTitle.Size = UDim2.new(1, 0, 0.1, 0)
+    SectionTitle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    SectionTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SectionTitle.Parent = Section
+
+    -- Create a UIGridLayout for the section to automatically arrange buttons/textboxes
+    local GridLayout = Instance.new("UIGridLayout")
+    GridLayout.CellSize = UDim2.new(0.9, 0, 0.1, 0)
+    GridLayout.CellPadding = UDim2.new(0, 0, 0, 5)
+    GridLayout.Parent = Section
+
+    -- Parent the section to the window
+    Section.Parent = Window
+
+    return Section
 end
 
--- Add Button function (works inside tabs)
-function UILibrary:AddButton(text, tabName, callback)
-    local TabContent = self.Tabs[tabName]
-    if not TabContent then return end -- Check if the tab exists
+function Library:CreateButton(Section, buttonText, callback)
+    -- Create a button inside the section
     local Button = Instance.new("TextButton")
-    Button.Name = "Button"
-    Button.Parent = TabContent
-    Button.Size = UDim2.new(1, -10, 0, 30)
-    Button.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
-    Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    Button.Text = text
+    Button.Size = UDim2.new(1, 0, 0.1, 0)
+    Button.Text = buttonText
+    Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.TextSize = 14
-    addRoundedCorners(Button)  -- Add rounded corners to buttons
-    addButtonHoverEffect(Button)  -- Add hover effect
+    Button.Parent = Section
 
+    -- Button click event
     Button.MouseButton1Click:Connect(function()
-        if callback then callback() end
-    end)
-
-    table.insert(self.Components, Button)
-    return Button
-end
-
--- Add Toggle function (works inside tabs)
-function UILibrary:AddToggle(text, default, tabName, callback)
-    local TabContent = self.Tabs[tabName]
-    if not TabContent then return end -- Check if the tab exists
-    local Toggle = Instance.new("Frame")
-    Toggle.Name = "Toggle"
-    Toggle.Parent = TabContent
-    Toggle.Size = UDim2.new(1, -10, 0, 30)
-    Toggle.Position = UDim2.new(0, 5, 0, #self.Components * 35 + 35)
-    Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    addRoundedCorners(Toggle)  -- Add rounded corners
-
-    local ToggleLabel = Instance.new("TextLabel")
-    ToggleLabel.Name = "ToggleLabel"
-    ToggleLabel.Parent = Toggle
-    ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
-    ToggleLabel.Position = UDim2.new(0, 5, 0, 0)
-    ToggleLabel.BackgroundTransparency = 1
-    ToggleLabel.Text = text
-    ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleLabel.TextSize = 14
-
-    local ToggleButton = Instance.new("TextButton")
-    ToggleButton.Name = "ToggleButton"
-    ToggleButton.Parent = Toggle
-    ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
-    ToggleButton.Position = UDim2.new(0.8, 0, 0, 0)
-    ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-    ToggleButton.Text = ""
-    ToggleButton.AutoButtonColor = false
-    addRoundedCorners(ToggleButton)  -- Add rounded corners to toggle button
-
-    ToggleButton.MouseButton1Click:Connect(function()
-        default = not default
-        ToggleButton.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        if callback then callback(default) end
-    end)
-
-    table.insert(self.Components, Toggle)
-    return Toggle
-end
-
--- Helper functions
-local function addGradientToFrame(frame)
-    local gradient = Instance.new("UIGradient")
-    gradient.Parent = frame
-    gradient.Color = ColorSequence.new(
-        Color3.fromRGB(40, 40, 40), 
-        Color3.fromRGB(60, 60, 60)
-    )
-    gradient.Rotation = 45
-end
-
-local function addRoundedCorners(obj)
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = obj
-end
-
-local function addShadowToFrame(frame)
-    local shadow = Instance.new("ImageLabel")
-    shadow.Parent = frame
-    shadow.Size = UDim2.new(1, 6, 1, 6)
-    shadow.Position = UDim2.new(0, -3, 0, -3)
-    shadow.Image = "rbxassetid://6023426926"
-    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.BackgroundTransparency = 1
-    shadow.ZIndex = frame.ZIndex - 1
-end
-
-local function addButtonHoverEffect(button)
-    local originalColor = button.BackgroundColor3
-    button.MouseEnter:Connect(function()
-        button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    end)
-    button.MouseLeave:Connect(function()
-        button.BackgroundColor3 = originalColor
+        callback()
     end)
 end
 
-return UILibrary
+function Library:CreateTextbox(Section, placeholderText, callback)
+    -- Create a textbox inside the section
+    local TextBox = Instance.new("TextBox")
+    TextBox.Size = UDim2.new(1, 0, 0.1, 0)
+    TextBox.PlaceholderText = placeholderText
+    TextBox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextBox.Parent = Section
+
+    -- Textbox focus lost event
+    TextBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(TextBox.Text)
+        end
+    end)
+end
+
+return Library
