@@ -1,55 +1,80 @@
--- Simple UI Library Example
-
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
+-- Helper function to create a UI Corner (Rounded edges)
+local function addUICorner(parent, radius)
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0, radius)
+    uiCorner.Parent = parent
+    return uiCorner
+end
+
+-- Helper function to add a UI stroke (Border effect)
+local function addUIStroke(parent, color, thickness)
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Color = color
+    uiStroke.Thickness = thickness
+    uiStroke.Parent = parent
+    return uiStroke
+end
+
 -- Function to create a new window (ScreenGui)
 function UILibrary:NewWindow(title)
-    -- Create the ScreenGui container
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
     -- Create the window frame
     local window = Instance.new("Frame")
-    window.Size = UDim2.new(0, 400, 0, 300)  -- Set window size
-    window.Position = UDim2.new(0.5, -200, 0.5, -150)  -- Center the window
-    window.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    window.Size = UDim2.new(0, 400, 0, 300)
+    window.Position = UDim2.new(0.5, -200, 0.5, -150)
+    window.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    window.BorderSizePixel = 0
     window.Parent = screenGui
 
-    -- Create the title label
+    -- Add rounded corners and UI stroke
+    addUICorner(window, 10)
+    addUIStroke(window, Color3.fromRGB(80, 80, 80), 2)
+
+    -- Title bar
+    local titleBar = Instance.new("Frame")
+    titleBar.Size = UDim2.new(1, 0, 0, 40)
+    titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    titleBar.BorderSizePixel = 0
+    titleBar.Parent = window
+    addUICorner(titleBar, 10)
+
+    -- Title label
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0, 30)
+    titleLabel.Size = UDim2.new(1, 0, 1, 0)
     titleLabel.Text = title
     titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextSize = 18
-    titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    titleLabel.Parent = window
+    titleLabel.TextSize = 20
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Parent = titleBar
 
     return window
 end
 
 -- Function to create a new section inside the window
 function UILibrary:NewSection(window, sectionName)
-    -- Create the section frame
     local section = Instance.new("Frame")
-    section.Size = UDim2.new(1, 0, 0, 150)  -- Set section size
-    section.Position = UDim2.new(0, 0, 0, 30)  -- Position below the title
+    section.Size = UDim2.new(1, -20, 0, 150)
+    section.Position = UDim2.new(0, 10, 0, 50)
     section.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    section.BorderSizePixel = 0
     section.Parent = window
-
-    -- Create UIGridLayout for the section to manage element positioning
-    local gridLayout = Instance.new("UIGridLayout")
-    gridLayout.CellSize = UDim2.new(0, 120, 0, 40)  -- Element size
-    gridLayout.CellPadding = UDim2.new(0, 10, 0, 10)  -- Padding between elements
-    gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    gridLayout.Parent = section
+    addUICorner(section, 8)
+    addUIStroke(section, Color3.fromRGB(90, 90, 90), 1)
 
     -- Section label
     local sectionLabel = Instance.new("TextLabel")
-    sectionLabel.Size = UDim2.new(1, 0, 0, 20)
+    sectionLabel.Size = UDim2.new(1, 0, 0, 30)
     sectionLabel.Text = sectionName
-    sectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    sectionLabel.TextSize = 14
+    sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    sectionLabel.TextSize = 16
+    sectionLabel.Font = Enum.Font.Gotham
+    sectionLabel.BackgroundTransparency = 1
     sectionLabel.Parent = section
 
     return section
@@ -58,12 +83,22 @@ end
 -- Function to create a button inside the section
 function UILibrary:CreateButton(section, buttonText, callback)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 40)  -- Button size
-    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    button.Size = UDim2.new(0, 120, 0, 40)
+    button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     button.Text = buttonText
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.TextSize = 16
+    button.Font = Enum.Font.Gotham
     button.Parent = section
+    addUICorner(button, 8)
+
+    -- Add hover effects
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    end)
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    end)
 
     -- Button click event
     button.MouseButton1Click:Connect(callback)
@@ -73,11 +108,14 @@ end
 function UILibrary:CreateTextbox(section, placeholderText, callback)
     local textbox = Instance.new("TextBox")
     textbox.Size = UDim2.new(0, 120, 0, 40)
-    textbox.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+    textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     textbox.PlaceholderText = placeholderText
+    textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
     textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
     textbox.TextSize = 16
+    textbox.Font = Enum.Font.Gotham
     textbox.Parent = section
+    addUICorner(textbox, 8)
 
     -- Textbox submit event
     textbox.FocusLost:Connect(function(enterPressed)
@@ -87,5 +125,4 @@ function UILibrary:CreateTextbox(section, placeholderText, callback)
     end)
 end
 
--- Return the library to be used
 return UILibrary
