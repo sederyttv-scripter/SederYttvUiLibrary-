@@ -1,19 +1,37 @@
--- Custom UI Library Module with UIGridLayout
+-- Custom UI Library with Vape UI Aesthetics
 local Library = {}
+
+-- Helper function to create gradient backgrounds
+local function CreateGradient(Parent)
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new(
+        Color3.fromRGB(44, 44, 44), 
+        Color3.fromRGB(26, 26, 26)
+    )
+    Gradient.Rotation = 45
+    Gradient.Parent = Parent
+end
 
 function Library:NewWindow(title)
     -- Create the window frame
     local Window = Instance.new("Frame")
     Window.Size = UDim2.new(0.3, 0, 0.4, 0)
     Window.Position = UDim2.new(0.35, 0, 0.3, 0)
-    Window.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Window.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    Window.BorderSizePixel = 0
+    Window.BorderRadius = UDim.new(0, 10)
+    CreateGradient(Window)
 
     -- Create a title for the window
     local Title = Instance.new("TextLabel")
     Title.Text = title
     Title.Size = UDim2.new(1, 0, 0.1, 0)
-    Title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Title.BackgroundTransparency = 1
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 18
+    Title.TextStrokeTransparency = 0.8
+    Title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    Title.Font = Enum.Font.GothamBold
     Title.Parent = Window
 
     -- Parent the window to the ScreenGui
@@ -27,14 +45,21 @@ function Library:NewSection(Window, sectionTitle)
     local Section = Instance.new("Frame")
     Section.Size = UDim2.new(1, 0, 0.5, 0)
     Section.Position = UDim2.new(0, 0, 0.1, 0)
-    Section.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Section.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Section.BorderSizePixel = 0
+    Section.BorderRadius = UDim.new(0, 10)
+    CreateGradient(Section)
 
     -- Create a title for the section
     local SectionTitle = Instance.new("TextLabel")
     SectionTitle.Text = sectionTitle
     SectionTitle.Size = UDim2.new(1, 0, 0.1, 0)
-    SectionTitle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    SectionTitle.BackgroundTransparency = 1
     SectionTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SectionTitle.TextSize = 14
+    SectionTitle.TextStrokeTransparency = 0.8
+    SectionTitle.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    SectionTitle.Font = Enum.Font.GothamBold
     SectionTitle.Parent = Section
 
     -- Create a UIGridLayout for the section to automatically arrange buttons/textboxes
@@ -54,14 +79,29 @@ function Library:CreateButton(Section, buttonText, callback)
     local Button = Instance.new("TextButton")
     Button.Size = UDim2.new(1, 0, 0.1, 0)
     Button.Text = buttonText
-    Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Button.BorderSizePixel = 0
+    Button.BorderRadius = UDim.new(0, 8)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Parent = Section
+    Button.TextSize = 16
+    Button.Font = Enum.Font.GothamBold
+    CreateGradient(Button)
+    
+    -- Hover effect
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    end)
+    
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end)
 
     -- Button click event
     Button.MouseButton1Click:Connect(function()
         callback()
     end)
+
+    Button.Parent = Section
 end
 
 function Library:CreateTextbox(Section, placeholderText, callback)
@@ -69,16 +109,22 @@ function Library:CreateTextbox(Section, placeholderText, callback)
     local TextBox = Instance.new("TextBox")
     TextBox.Size = UDim2.new(1, 0, 0.1, 0)
     TextBox.PlaceholderText = placeholderText
-    TextBox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    TextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TextBox.Parent = Section
+    TextBox.TextSize = 16
+    TextBox.Font = Enum.Font.Gotham
+    TextBox.BorderSizePixel = 0
+    TextBox.BorderRadius = UDim.new(0, 8)
+    CreateGradient(TextBox)
 
-    -- Textbox focus lost event
+    -- Focus lost event for the textbox
     TextBox.FocusLost:Connect(function(enterPressed)
         if enterPressed then
             callback(TextBox.Text)
         end
     end)
+
+    TextBox.Parent = Section
 end
 
 return Library
