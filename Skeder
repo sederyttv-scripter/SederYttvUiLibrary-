@@ -197,15 +197,15 @@ end
 
 function UILibrary:CreateToggle(section, labelText, callback)
     local toggle = Instance.new("Frame")
-    toggle.Size = UDim2.new(0, 120, 0, 40)
+    toggle.Size = UDim2.new(1, 0, 0, 40)  -- Adjust width to 100% of parent
     toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     toggle.Parent = section
     addUICorner(toggle, 8)
 
     -- Checkbox
     local checkbox = Instance.new("TextButton")
-    checkbox.Size = UDim2.new(0, 30, 0, 30)
-    checkbox.Position = UDim2.new(0, 5, 0, 5)
+    checkbox.Size = UDim2.new(0, 30, 0, 30)  -- Keep the size of the checkbox small
+    checkbox.Position = UDim2.new(0, 5, 0, 5)  -- Position it at the left side
     checkbox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     checkbox.Text = ""
     checkbox.Parent = toggle
@@ -213,15 +213,15 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     -- Label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -40, 0, 30)
-    label.Position = UDim2.new(0, 35, 0, 5)
+    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the rest of the space
+    label.Position = UDim2.new(0, 35, 0, 0)  -- Position the label next to the checkbox
     label.Text = labelText
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 16
     label.Font = Enum.Font.Gotham
     label.BackgroundTransparency = 1
-    label.TextWrapped = true  -- Allow text wrapping
-    label.TextXAlignment = Enum.TextXAlignment.Left  -- Align text to the left
+    label.TextWrapped = true
+    label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = toggle
 
     local isChecked = false
@@ -229,13 +229,13 @@ function UILibrary:CreateToggle(section, labelText, callback)
     -- Notification Sound
     local notificationSound = Instance.new("Sound")
     notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
-    notificationSound.Volume = 5 -- Set volume to 5
+    notificationSound.Volume = 5
     notificationSound.Parent = checkbox
 
-    -- Create the notification and set it to be outside the toggle (e.g., at the top center of the screen)
+    -- Create the notification
     local notification = Instance.new("TextLabel")
     notification.Size = UDim2.new(0, 250, 0, 60)
-    notification.Position = UDim2.new(0.5, -125, 0, 20)  -- Positioned at the top-center of the screen
+    notification.Position = UDim2.new(0.5, -125, 0, 20)
     notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     notification.TextColor3 = Color3.fromRGB(255, 255, 255)
     notification.TextSize = 22
