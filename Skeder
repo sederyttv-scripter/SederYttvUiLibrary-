@@ -172,6 +172,96 @@ function UILibrary:CreateButton(section, buttonText, callback)
     end)
 end
 
+function UILibrary:CreateDropdown(section, labelText, options, callback)
+    local dropdown = Instance.new("Frame")
+    dropdown.Size = UDim2.new(1, 0, 0, 40)  -- Full width, fixed height
+    dropdown.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    dropdown.Parent = section
+    addUICorner(dropdown, 8)
+
+    -- Dropdown label
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the space minus the dropdown button
+    label.Position = UDim2.new(0, 5, 0, 0)  -- Position the label
+    label.Text = labelText
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 16
+    label.Font = Enum.Font.Gotham
+    label.BackgroundTransparency = 1
+    label.TextWrapped = true
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = dropdown
+
+    -- Dropdown button to toggle options
+    local dropdownButton = Instance.new("TextButton")
+    dropdownButton.Size = UDim2.new(0, 30, 0, 30)
+    dropdownButton.Position = UDim2.new(1, -35, 0, 5)  -- Position the button to the right
+    dropdownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    dropdownButton.Text = "▼"
+    dropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    dropdownButton.TextSize = 20
+    dropdownButton.Font = Enum.Font.Gotham
+    dropdownButton.Parent = dropdown
+
+    -- Click sound for dropdown button
+    local clickSound = Instance.new("Sound")
+    clickSound.SoundId = "rbxassetid://876939830"  -- Your click sound asset ID
+    clickSound.Volume = 1.5
+    clickSound.Parent = dropdownButton
+
+    -- Create the dropdown options container (hidden by default)
+    local optionsFrame = Instance.new("Frame")
+    optionsFrame.Size = UDim2.new(1, 0, 0, 0)  -- Initially no height
+    optionsFrame.Position = UDim2.new(0, 0, 0, 40)
+    optionsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    optionsFrame.Visible = false
+    optionsFrame.Parent = section
+    addUICorner(optionsFrame, 8)
+    addUIStroke(optionsFrame, Color3.fromRGB(90, 90, 90), 1)
+
+    -- List layout for options (will auto adjust size of the options)
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)  -- Optional padding between options
+    layout.Parent = optionsFrame
+
+    -- Add option buttons dynamically
+    for _, option in ipairs(options) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Size = UDim2.new(1, 0, 0, 40)  -- Make the option buttons fill the entire width
+        optionButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        optionButton.Text = option
+        optionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        optionButton.TextSize = 16
+        optionButton.Font = Enum.Font.Gotham
+        optionButton.Parent = optionsFrame
+        addUICorner(optionButton, 8)
+
+        -- Add hover effects
+        optionButton.MouseEnter:Connect(function()
+            optionButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        end)
+        optionButton.MouseLeave:Connect(function()
+            optionButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        end)
+
+        -- Option click event
+        optionButton.MouseButton1Click:Connect(function()
+            -- Play click sound
+            clickSound:Play()
+            callback(option)  -- Call the callback with the selected option
+            optionsFrame.Visible = false  -- Hide options after selection
+        end)
+    end
+
+    -- Toggle the visibility of options when the dropdown button is clicked
+    dropdownButton.MouseButton1Click:Connect(function()
+        -- Play click sound when the dropdown button is clicked
+        clickSound:Play()
+        optionsFrame.Visible = not optionsFrame.Visible
+        dropdownButton.Text = optionsFrame.Visible and "▲" or "▼"  -- Change the button text
+    end)
+end
+
 function UILibrary:CreateTextbox(section, placeholderText, callback)
     local textbox = Instance.new("TextBox")
     textbox.Size = UDim2.new(1, 0, 0, 40)  -- Replace this line to make it fit the full width
