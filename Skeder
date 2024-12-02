@@ -140,8 +140,6 @@ function UILibrary:NewSection(window, sectionName)
 
     return scrollFrame
 end
-
--- Function to create a button inside the section
 function UILibrary:CreateButton(section, buttonText, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 120, 0, 40)
@@ -161,9 +159,19 @@ function UILibrary:CreateButton(section, buttonText, callback)
         button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end)
 
+    -- Add click sound
+    local clickSound = Instance.new("Sound")
+    clickSound.SoundId = "rbxassetid://876939830" -- Click sound asset
+    clickSound.Volume = 1.5
+    clickSound.Parent = button
+
     -- Button click event
-    button.MouseButton1Click:Connect(callback)
+    button.MouseButton1Click:Connect(function()
+        clickSound:Play() -- Play the sound
+        callback() -- Call the provided function
+    end)
 end
+
 
 -- Function to create a textbox inside the section
 function UILibrary:CreateTextbox(section, placeholderText, callback)
