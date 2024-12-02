@@ -202,7 +202,6 @@ function UILibrary:CreateToggle(section, labelText, callback)
     toggle.Parent = section
     addUICorner(toggle, 8)
 
-    -- Checkbox
     local checkbox = Instance.new("TextButton")
     checkbox.Size = UDim2.new(0, 30, 0, 30)
     checkbox.Position = UDim2.new(0, 5, 0, 5)
@@ -211,7 +210,6 @@ function UILibrary:CreateToggle(section, labelText, callback)
     checkbox.Parent = toggle
     addUICorner(checkbox, 6)
 
-    -- Label
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -40, 0, 30)
     label.Position = UDim2.new(0, 35, 0, 5)
@@ -224,24 +222,23 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     local isChecked = false
 
-    -- Notification Sound
     local notificationSound = Instance.new("Sound")
     notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
     notificationSound.Volume = 5 -- Set volume to 5
     notificationSound.Parent = checkbox
 
-    -- Notification Text (High-Graphics)
+    -- Create the notification and set it to be outside the toggle (e.g., at the top center of the screen)
     local notification = Instance.new("TextLabel")
     notification.Size = UDim2.new(0, 250, 0, 60)
-    notification.Position = UDim2.new(0.5, -125, 0, 120)
+    notification.Position = UDim2.new(0.5, -125, 0, 20)  -- Positioned at the top-center of the screen
     notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     notification.TextColor3 = Color3.fromRGB(255, 255, 255)
     notification.TextSize = 22
-    notification.Text = "Toggle is ON"
+    notification.Text = "Toggle is OFF"
     notification.Font = Enum.Font.GothamBold
     notification.BackgroundTransparency = 0
     notification.Visible = false
-    notification.Parent = section.Parent
+    notification.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
 
     -- Add rounded corners
     local notificationCorner = Instance.new("UICorner")
@@ -284,15 +281,16 @@ function UILibrary:CreateToggle(section, labelText, callback)
         -- Play sound
         notificationSound:Play()
 
-        -- Show notification if checked
+        -- Update notification text based on toggle state
         if isChecked then
             notification.Text = "Toggle is ON"
         else
             notification.Text = "Toggle is OFF"
         end
 
+        -- Show the notification
         notification.Visible = true
-        wait(2)
+        wait(2)  -- Show for 2 seconds
         notification.Visible = false
     end)
 end
