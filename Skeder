@@ -231,27 +231,27 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     -- Notification Text (High-Graphics)
     local notification = Instance.new("TextLabel")
-    notification.Size = UDim2.new(0, 200, 0, 40)
-    notification.Position = UDim2.new(0.5, -100, 0, 100) -- Adjust position as needed
-    notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    notification.Size = UDim2.new(0, 250, 0, 60)
+    notification.Position = UDim2.new(0.5, -125, 0, 120)
+    notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    notification.TextSize = 18
+    notification.TextSize = 22
     notification.Text = "Toggle is ON"
-    notification.Font = Enum.Font.Gotham
+    notification.Font = Enum.Font.GothamBold
     notification.BackgroundTransparency = 0 -- Solid background
-    notification.Visible = false -- Initially hidden
-    notification.Parent = section.Parent -- Assuming section.Parent is the window or screen
+    notification.Visible = false
+    notification.Parent = section.Parent
 
     -- Add rounded corners
     local notificationCorner = Instance.new("UICorner")
-    notificationCorner.CornerRadius = UDim.new(0, 10) -- Adjust radius as needed
+    notificationCorner.CornerRadius = UDim.new(0, 12)
     notificationCorner.Parent = notification
 
     -- Add a gradient to the background
     local notificationGradient = Instance.new("UIGradient")
     notificationGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 255)), -- Start color
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 50, 50))  -- End color
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)), -- Blue
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 85, 127))  -- Pink
     }
     notificationGradient.Rotation = 45
     notificationGradient.Parent = notification
@@ -259,20 +259,20 @@ function UILibrary:CreateToggle(section, labelText, callback)
     -- Add a stroke (border)
     local notificationStroke = Instance.new("UIStroke")
     notificationStroke.Color = Color3.fromRGB(255, 255, 255)
-    notificationStroke.Thickness = 2
+    notificationStroke.Thickness = 3
     notificationStroke.Parent = notification
 
-    -- Add a drop shadow
+    -- Add a glowing shadow effect
     local notificationShadow = Instance.new("ImageLabel")
-    notificationShadow.Size = UDim2.new(1, 8, 1, 8) -- Slightly larger than the notification
-    notificationShadow.Position = UDim2.new(0, -4, 0, -4) -- Offset to create shadow effect
-    notificationShadow.Image = "rbxassetid://1316045217" -- Blur shadow asset
+    notificationShadow.Size = UDim2.new(1, 16, 1, 16)
+    notificationShadow.Position = UDim2.new(0, -8, 0, -8)
+    notificationShadow.Image = "rbxassetid://1316045217"
     notificationShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    notificationShadow.ImageTransparency = 0.5 -- Adjust shadow transparency
+    notificationShadow.ImageTransparency = 0.6
     notificationShadow.ScaleType = Enum.ScaleType.Slice
-    notificationShadow.SliceCenter = Rect.new(10, 10, 118, 118) -- Ensures clean edges
+    notificationShadow.SliceCenter = Rect.new(10, 10, 118, 118)
     notificationShadow.Parent = notification
-    notificationShadow.ZIndex = notification.ZIndex - 1 -- Ensure it appears below the notification
+    notificationShadow.ZIndex = notification.ZIndex - 1
 
     -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
@@ -286,15 +286,13 @@ function UILibrary:CreateToggle(section, labelText, callback)
         -- Show notification if checked
         if isChecked then
             notification.Text = "Toggle is ON"
-            notification.Visible = true
-            wait(2) -- Show the notification for 2 seconds
-            notification.Visible = false
         else
             notification.Text = "Toggle is OFF"
-            notification.Visible = true
-            wait(2)
-            notification.Visible = false
         end
+
+        notification.Visible = true
+        wait(2)
+        notification.Visible = false
     end)
 end
 
