@@ -172,10 +172,9 @@ function UILibrary:CreateButton(section, buttonText, callback)
     end)
 end
 
--- Function to create a textbox inside the section
 function UILibrary:CreateTextbox(section, placeholderText, callback)
     local textbox = Instance.new("TextBox")
-    textbox.Size = UDim2.new(0, 120, 0, 40)
+    textbox.Size = UDim2.new(1, 0, 0, 40)  -- Replace this line to make it fit the full width
     textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     textbox.PlaceholderText = placeholderText
     textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
