@@ -210,91 +210,76 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     -- Label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the rest of the space
-    label.Position = UDim2.new(0, 35, 0, 0)  -- Position the label next to the checkbox
+    label.Size = UDim2.new(1, -40, 1, 0)  -- Adjust size to fit text and checkbox
+    label.Position = UDim2.new(0, 40, 0, 0)
     label.Text = labelText
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 16
     label.Font = Enum.Font.Gotham
     label.BackgroundTransparency = 1
-    label.TextWrapped = true
-    label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = toggle
 
+    -- Toggle the checkbox
     local isChecked = false
-
-    -- Notification Sound
-    local notificationSound = Instance.new("Sound")
-    notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
-    notificationSound.Volume = 5
-    notificationSound.Parent = checkbox
-
-    -- Create the notification
-    local notification = Instance.new("TextLabel")
-    notification.Size = UDim2.new(0, 250, 0, 60)
-    notification.Position = UDim2.new(0.5, -125, 0, 20)
-    notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    notification.TextSize = 22
-    notification.Text = "Toggle is OFF"
-    notification.Font = Enum.Font.GothamBold
-    notification.BackgroundTransparency = 0
-    notification.Visible = false
-    notification.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
-
-    -- Add rounded corners
-    local notificationCorner = Instance.new("UICorner")
-    notificationCorner.CornerRadius = UDim.new(0, 12)
-    notificationCorner.Parent = notification
-
-    -- Add a gradient to the background
-    local notificationGradient = Instance.new("UIGradient")
-    notificationGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 85, 127))
-    }
-    notificationGradient.Rotation = 45
-    notificationGradient.Parent = notification
-
-    -- Add a stroke (border)
-    local notificationStroke = Instance.new("UIStroke")
-    notificationStroke.Color = Color3.fromRGB(255, 255, 255)
-    notificationStroke.Thickness = 3
-    notificationStroke.Parent = notification
-
-    -- Add a glowing shadow effect
-    local notificationShadow = Instance.new("ImageLabel")
-    notificationShadow.Size = UDim2.new(1, 16, 1, 16)
-    notificationShadow.Position = UDim2.new(0, -8, 0, -8)
-    notificationShadow.Image = "rbxassetid://1316045217"
-    notificationShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    notificationShadow.ImageTransparency = 0.6
-    notificationShadow.ScaleType = Enum.ScaleType.Slice
-    notificationShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-    notificationShadow.Parent = notification
-    notificationShadow.ZIndex = notification.ZIndex - 1
-
-    -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
         isChecked = not isChecked
         checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
-        callback(isChecked)
-
-        -- Play sound
-        notificationSound:Play()
-
-        -- Update notification text based on toggle state
-        if isChecked then
-            notification.Text = "Toggle is ON"
-        else
-            notification.Text = "Toggle is OFF"
-        end
-
-        -- Show the notification
-        notification.Visible = true
-        wait(0.5)  -- Show for 0.5 seconds
-        notification.Visible = false
+        callback(isChecked)  -- Pass the state to the callback
     end)
+end
+
+-- Function to create Tabs (Added code)
+function UILibrary:AddTabs(window, tabNames)
+    local tabContainer = Instance.new("Frame")
+    tabContainer.Size = UDim2.new(1, 0, 0, 50)
+    tabContainer.Position = UDim2.new(0, 0, 0, 40) -- Position below the title bar
+    tabContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    tabContainer.Parent = window
+    addUICorner(tabContainer, 8)
+
+    -- Tab buttons
+    local tabButtons = {}
+    local activeTabIndex = 1  -- Default active tab
+    local tabContentFrame = Instance.new("Frame")
+    tabContentFrame.Size = UDim2.new(1, 0, 1, -90) -- Fill remaining space
+    tabContentFrame.Position = UDim2.new(0, 0, 0, 90) -- Below the tab bar
+    tabContentFrame.BackgroundTransparency = 1
+    tabContentFrame.Parent = window
+
+    -- Create the content for each tab
+    local tabContents = {}
+    for i, tabName in ipairs(tabNames) do
+        -- Create a tab button
+        local tabButton = Instance.new("TextButton")
+        tabButton.Size = UDim2.new(1/#tabNames, 0, 1, 0)
+        tabButton.Position = UDim2.new((i-1)/#tabNames, 0, 0, 0)
+        tabButton.Text = tabName
+        tabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        tabButton.Font = Enum.Font.GothamBold
+        tabButton.TextSize = 16
+        tabButton.Parent = tabContainer
+        addUICorner(tabButton, 8)
+
+        -- Create the content for the tab
+        local tabContent = Instance.new("Frame")
+        tabContent.Size = UDim2.new(1, 0, 1, 0)
+        tabContent.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        tabContent.Visible = (i == activeTabIndex)
+        tabContent.Parent = tabContentFrame
+        addUICorner(tabContent, 8)
+        
+        tabContents[i] = tabContent
+
+        -- Switch to this tab when clicked
+        tabButton.MouseButton1Click:Connect(function()
+            for j, content in ipairs(tabContents) do
+                content.Visible = false
+            end
+            tabContents[i].Visible = true
+            activeTabIndex = i
+        end)
+    end
 end
 
 return UILibrary
