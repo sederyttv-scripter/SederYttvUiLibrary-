@@ -230,7 +230,7 @@ function UILibrary:CreateDropdown(section, labelText, options, callback)
     clickSound.Parent = dropdownButton
 
     -- Create the dropdown options container (hidden by default)
-    local optionsFrame = Instance.new("ScrollingFrame")
+    local optionsFrame = Instance.new("Frame")
     optionsFrame.Size = UDim2.new(1, 0, 0, 0)  -- Initially no height
     optionsFrame.Position = UDim2.new(0, 0, 0, 40)
     optionsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
