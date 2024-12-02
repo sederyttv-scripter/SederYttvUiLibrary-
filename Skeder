@@ -172,112 +172,46 @@ function UILibrary:CreateButton(section, buttonText, callback)
     end)
 end
 
-function UILibrary:CreateDropdown(section, labelText, options, callback)
-    local dropdown = Instance.new("Frame")
-    dropdown.Size = UDim2.new(1, 0, 0, 40)  -- Full width, fixed height
-    dropdown.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    dropdown.Parent = section
-    addUICorner(dropdown, 8)
+function UILibrary:CreateTextbox(section, placeholderText, callback)
+    local textbox = Instance.new("TextBox")
+    textbox.Size = UDim2.new(1, 0, 0, 40)  -- Replace this line to make it fit the full width
+    textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    textbox.PlaceholderText = placeholderText
+    textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
+    textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textbox.TextSize = 16
+    textbox.Font = Enum.Font.Gotham
+    textbox.Parent = section
+    addUICorner(textbox, 8)
 
-    -- Dropdown label
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the space minus the dropdown button
-    label.Position = UDim2.new(0, 5, 0, 0)  -- Position the label
-    label.Text = labelText
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 16
-    label.Font = Enum.Font.Gotham
-    label.BackgroundTransparency = 1
-    label.TextWrapped = true
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = dropdown
-
-    -- Dropdown button to toggle options
-    local dropdownButton = Instance.new("TextButton")
-    dropdownButton.Size = UDim2.new(0, 30, 0, 30)
-    dropdownButton.Position = UDim2.new(1, -35, 0, 5)  -- Position the button to the right
-    dropdownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    dropdownButton.Text = "▼"
-    dropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    dropdownButton.TextSize = 20
-    dropdownButton.Font = Enum.Font.Gotham
-    dropdownButton.Parent = dropdown
-
-    -- Click sound for dropdown button
-    local clickSound = Instance.new("Sound")
-    clickSound.SoundId = "rbxassetid://876939830"  -- Your click sound asset ID
-    clickSound.Volume = 1.5
-    clickSound.Parent = dropdownButton
-
-    -- Create the dropdown options container (scrollable)
-    local optionsFrame = Instance.new("ScrollingFrame")
-    optionsFrame.Size = UDim2.new(1, 0, 0, 0)  -- Initially no height
-    optionsFrame.Position = UDim2.new(0, 0, 0, 40)
-    optionsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    optionsFrame.Visible = false  -- Initially hidden
-    optionsFrame.Parent = section
-    addUICorner(optionsFrame, 8)
-    addUIStroke(optionsFrame, Color3.fromRGB(90, 90, 90), 1)
-    optionsFrame.ScrollBarThickness = 6  -- Custom scrollbar thickness
-    optionsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Will be dynamically updated
-
-    -- List layout for options (will auto adjust size of the options)
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 5)  -- Optional padding between options
-    layout.Parent = optionsFrame
-
-    -- Add option buttons dynamically
-    for _, option in ipairs(options) do
-        local optionButton = Instance.new("TextButton")
-        optionButton.Size = UDim2.new(1, 0, 0, 40)  -- Make the option buttons fill the entire width
-        optionButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        optionButton.Text = option
-        optionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        optionButton.TextSize = 16
-        optionButton.Font = Enum.Font.Gotham
-        optionButton.Parent = optionsFrame
-        addUICorner(optionButton, 8)
-
-        -- Option click event
-        optionButton.MouseButton1Click:Connect(function()
-            callback(option)  -- Call the callback with the selected option
-            optionsFrame.Visible = false  -- Hide options after selection
-        end)
-    end
-
-    -- Adjust the canvas size of the scrolling frame based on the options
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        optionsFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 5)  -- Add some padding
-    end)
-
-    -- Toggle the visibility of options when the dropdown button is clicked
-    dropdownButton.MouseButton1Click:Connect(function()
-        optionsFrame.Visible = not optionsFrame.Visible
-        dropdownButton.Text = optionsFrame.Visible and "▲" or "▼"  -- Change the button text
-        clickSound:Play() -- Play the click sound when toggled
+    -- Textbox submit event
+    textbox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(textbox.Text)
+        end
     end)
 end
 
 function UILibrary:CreateToggle(section, labelText, callback)
     local toggle = Instance.new("Frame")
-    toggle.Size = UDim2.new(1, 0, 0, 40)
+    toggle.Size = UDim2.new(1, 0, 0, 40)  -- Adjust width to 100% of parent
     toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     toggle.Parent = section
     addUICorner(toggle, 8)
 
-    -- Checkbox button
+    -- Checkbox
     local checkbox = Instance.new("TextButton")
-    checkbox.Size = UDim2.new(0, 30, 0, 30)
-    checkbox.Position = UDim2.new(0, 5, 0, 5)
+    checkbox.Size = UDim2.new(0, 30, 0, 30)  -- Keep the size of the checkbox small
+    checkbox.Position = UDim2.new(0, 5, 0, 5)  -- Position it at the left side
     checkbox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     checkbox.Text = ""
     checkbox.Parent = toggle
     addUICorner(checkbox, 6)
 
-    -- Label for the toggle
+    -- Label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -40, 1, 0)
-    label.Position = UDim2.new(0, 35, 0, 0)
+    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the rest of the space
+    label.Position = UDim2.new(0, 35, 0, 0)  -- Position the label next to the checkbox
     label.Text = labelText
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 16
@@ -289,11 +223,77 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     local isChecked = false
 
-    -- Toggle action
+    -- Notification Sound
+    local notificationSound = Instance.new("Sound")
+    notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
+    notificationSound.Volume = 5
+    notificationSound.Parent = checkbox
+
+    -- Create the notification
+    local notification = Instance.new("TextLabel")
+    notification.Size = UDim2.new(0, 250, 0, 60)
+    notification.Position = UDim2.new(0.5, -125, 0, 20)
+    notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notification.TextSize = 22
+    notification.Text = "Toggle is OFF"
+    notification.Font = Enum.Font.GothamBold
+    notification.BackgroundTransparency = 0
+    notification.Visible = false
+    notification.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
+
+    -- Add rounded corners
+    local notificationCorner = Instance.new("UICorner")
+    notificationCorner.CornerRadius = UDim.new(0, 12)
+    notificationCorner.Parent = notification
+
+    -- Add a gradient to the background
+    local notificationGradient = Instance.new("UIGradient")
+    notificationGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 85, 127))
+    }
+    notificationGradient.Rotation = 45
+    notificationGradient.Parent = notification
+
+    -- Add a stroke (border)
+    local notificationStroke = Instance.new("UIStroke")
+    notificationStroke.Color = Color3.fromRGB(255, 255, 255)
+    notificationStroke.Thickness = 3
+    notificationStroke.Parent = notification
+
+    -- Add a glowing shadow effect
+    local notificationShadow = Instance.new("ImageLabel")
+    notificationShadow.Size = UDim2.new(1, 16, 1, 16)
+    notificationShadow.Position = UDim2.new(0, -8, 0, -8)
+    notificationShadow.Image = "rbxassetid://1316045217"
+    notificationShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    notificationShadow.ImageTransparency = 0.6
+    notificationShadow.ScaleType = Enum.ScaleType.Slice
+    notificationShadow.SliceCenter = Rect.new(10, 10, 118, 118)
+    notificationShadow.Parent = notification
+    notificationShadow.ZIndex = notification.ZIndex - 1
+
+    -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
         isChecked = not isChecked
         checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
         callback(isChecked)
+
+        -- Play sound
+        notificationSound:Play()
+
+        -- Update notification text based on toggle state
+        if isChecked then
+            notification.Text = "Toggle is ON"
+        else
+            notification.Text = "Toggle is OFF"
+        end
+
+        -- Show the notification
+        notification.Visible = true
+        wait(0.5)  -- Show for 0.5 seconds
+        notification.Visible = false
     end)
 end
 
