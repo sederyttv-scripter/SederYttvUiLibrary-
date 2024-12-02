@@ -223,11 +223,11 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     local isChecked = false
 
-    -- Add click sound
-    local clickSound = Instance.new("Sound")
-    clickSound.SoundId = "rbxassetid://876939830"
-    clickSound.Volume = 0.5
-    clickSound.Parent = checkbox
+    -- Notification Sound
+    local notificationSound = Instance.new("Sound")
+    notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
+    notificationSound.Volume = 5 -- Set volume to 5
+    notificationSound.Parent = checkbox
 
     -- Notification Text (High-Graphics)
     local notification = Instance.new("TextLabel")
@@ -238,7 +238,7 @@ function UILibrary:CreateToggle(section, labelText, callback)
     notification.TextSize = 22
     notification.Text = "Toggle is ON"
     notification.Font = Enum.Font.GothamBold
-    notification.BackgroundTransparency = 0 -- Solid background
+    notification.BackgroundTransparency = 0
     notification.Visible = false
     notification.Parent = section.Parent
 
@@ -250,8 +250,8 @@ function UILibrary:CreateToggle(section, labelText, callback)
     -- Add a gradient to the background
     local notificationGradient = Instance.new("UIGradient")
     notificationGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)), -- Blue
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 85, 127))  -- Pink
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 85, 127))
     }
     notificationGradient.Rotation = 45
     notificationGradient.Parent = notification
@@ -281,7 +281,7 @@ function UILibrary:CreateToggle(section, labelText, callback)
         callback(isChecked)
 
         -- Play sound
-        clickSound:Play()
+        notificationSound:Play()
 
         -- Show notification if checked
         if isChecked then
