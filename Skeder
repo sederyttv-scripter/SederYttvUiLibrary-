@@ -196,12 +196,14 @@ function UILibrary:CreateTextbox(section, placeholderText, callback)
 end
 
 function UILibrary:CreateToggle(section, labelText, callback)
+function UILibrary:CreateToggle(section, labelText, callback)
     local toggle = Instance.new("Frame")
     toggle.Size = UDim2.new(0, 120, 0, 40)
     toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     toggle.Parent = section
     addUICorner(toggle, 8)
 
+    -- Checkbox
     local checkbox = Instance.new("TextButton")
     checkbox.Size = UDim2.new(0, 30, 0, 30)
     checkbox.Position = UDim2.new(0, 5, 0, 5)
@@ -210,6 +212,7 @@ function UILibrary:CreateToggle(section, labelText, callback)
     checkbox.Parent = toggle
     addUICorner(checkbox, 6)
 
+    -- Label
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -40, 0, 30)
     label.Position = UDim2.new(0, 35, 0, 5)
@@ -218,10 +221,13 @@ function UILibrary:CreateToggle(section, labelText, callback)
     label.TextSize = 16
     label.Font = Enum.Font.Gotham
     label.BackgroundTransparency = 1
+    label.TextWrapped = true  -- Allow text wrapping
+    label.TextXAlignment = Enum.TextXAlignment.Left  -- Align text to the left
     label.Parent = toggle
 
     local isChecked = false
 
+    -- Notification Sound
     local notificationSound = Instance.new("Sound")
     notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
     notificationSound.Volume = 5 -- Set volume to 5
@@ -290,7 +296,7 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
         -- Show the notification
         notification.Visible = true
-        wait(2)  -- Show for 2 seconds
+        wait(0.5)  -- Show for 0.5 seconds
         notification.Visible = false
     end)
 end
