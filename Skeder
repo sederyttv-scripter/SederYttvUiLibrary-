@@ -140,6 +140,7 @@ function UILibrary:NewSection(window, sectionName)
 
     return scrollFrame
 end
+
 function UILibrary:CreateButton(section, buttonText, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 120, 0, 40)
