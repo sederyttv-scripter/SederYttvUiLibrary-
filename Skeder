@@ -229,7 +229,7 @@ function UILibrary:CreateToggle(section, labelText, callback)
     clickSound.Volume = 0.5
     clickSound.Parent = checkbox
 
-    -- Notification Text
+    -- Notification Text (High-Graphics)
     local notification = Instance.new("TextLabel")
     notification.Size = UDim2.new(0, 200, 0, 40)
     notification.Position = UDim2.new(0.5, -100, 0, 100) -- Adjust position as needed
@@ -238,9 +238,41 @@ function UILibrary:CreateToggle(section, labelText, callback)
     notification.TextSize = 18
     notification.Text = "Toggle is ON"
     notification.Font = Enum.Font.Gotham
-    notification.BackgroundTransparency = 0.5
+    notification.BackgroundTransparency = 0 -- Solid background
     notification.Visible = false -- Initially hidden
     notification.Parent = section.Parent -- Assuming section.Parent is the window or screen
+
+    -- Add rounded corners
+    local notificationCorner = Instance.new("UICorner")
+    notificationCorner.CornerRadius = UDim.new(0, 10) -- Adjust radius as needed
+    notificationCorner.Parent = notification
+
+    -- Add a gradient to the background
+    local notificationGradient = Instance.new("UIGradient")
+    notificationGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 255)), -- Start color
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 50, 50))  -- End color
+    }
+    notificationGradient.Rotation = 45
+    notificationGradient.Parent = notification
+
+    -- Add a stroke (border)
+    local notificationStroke = Instance.new("UIStroke")
+    notificationStroke.Color = Color3.fromRGB(255, 255, 255)
+    notificationStroke.Thickness = 2
+    notificationStroke.Parent = notification
+
+    -- Add a drop shadow
+    local notificationShadow = Instance.new("ImageLabel")
+    notificationShadow.Size = UDim2.new(1, 8, 1, 8) -- Slightly larger than the notification
+    notificationShadow.Position = UDim2.new(0, -4, 0, -4) -- Offset to create shadow effect
+    notificationShadow.Image = "rbxassetid://1316045217" -- Blur shadow asset
+    notificationShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    notificationShadow.ImageTransparency = 0.5 -- Adjust shadow transparency
+    notificationShadow.ScaleType = Enum.ScaleType.Slice
+    notificationShadow.SliceCenter = Rect.new(10, 10, 118, 118) -- Ensures clean edges
+    notificationShadow.Parent = notification
+    notificationShadow.ZIndex = notification.ZIndex - 1 -- Ensure it appears below the notification
 
     -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
@@ -253,8 +285,14 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
         -- Show notification if checked
         if isChecked then
+            notification.Text = "Toggle is ON"
             notification.Visible = true
             wait(2) -- Show the notification for 2 seconds
+            notification.Visible = false
+        else
+            notification.Text = "Toggle is OFF"
+            notification.Visible = true
+            wait(2)
             notification.Visible = false
         end
     end)
