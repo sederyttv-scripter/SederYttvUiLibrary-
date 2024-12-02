@@ -210,12 +210,6 @@ function UILibrary:CreateToggle(section, labelText, callback)
     checkbox.Parent = toggle
     addUICorner(checkbox, 6)
 
-    -- Add click sound
-    local clickSound = Instance.new("Sound")
-    clickSound.SoundId = "rbxassetid://876939830"
-    clickSound.Volume = 1.5
-    clickSound.Parent = checkbox
-
     -- Label
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -40, 0, 30)
@@ -227,47 +221,42 @@ function UILibrary:CreateToggle(section, labelText, callback)
     label.BackgroundTransparency = 1
     label.Parent = toggle
 
-    -- Notification function
-    local function showNotification(message)
-        local screenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-        local notification = Instance.new("TextLabel")
-        notification.Size = UDim2.new(0, 300, 0, 50)
-        notification.Position = UDim2.new(0.5, -150, 0.1, 0)
-        notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        notification.Text = message
-        notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-        notification.TextSize = 18
-        notification.Font = Enum.Font.GothamBold
-        notification.AnchorPoint = Vector2.new(0.5, 0.5)
-        notification.Parent = screenGui
-
-        addUICorner(notification, 10)
-
-        -- Automatically fade out and remove the notification
-        game:GetService("TweenService"):Create(
-            notification,
-            TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 2), -- 2-second delay
-            {TextTransparency = 1, BackgroundTransparency = 1}
-        ):Play()
-        wait(3) -- Wait for the fade-out animation to complete
-        notification:Destroy()
-    end
-
     local isChecked = false
 
+    -- Add click sound
+    local clickSound = Instance.new("Sound")
+    clickSound.SoundId = "rbxassetid://876939830"
+    clickSound.Volume = 0.5
+    clickSound.Parent = checkbox
+
+    -- Notification Text
+    local notification = Instance.new("TextLabel")
+    notification.Size = UDim2.new(0, 200, 0, 40)
+    notification.Position = UDim2.new(0.5, -100, 0, 100) -- Adjust position as needed
+    notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notification.TextSize = 18
+    notification.Text = "Toggle is ON"
+    notification.Font = Enum.Font.Gotham
+    notification.BackgroundTransparency = 0.5
+    notification.Visible = false -- Initially hidden
+    notification.Parent = section.Parent -- Assuming section.Parent is the window or screen
+
+    -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
-        clickSound:Play() -- Play the click sound
         isChecked = not isChecked
         checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
-        
-        -- Notify the player
-        if isChecked then
-            showNotification("Toggle is ON")
-        else
-            showNotification("Toggle is OFF")
-        end
-
         callback(isChecked)
+
+        -- Play sound
+        clickSound:Play()
+
+        -- Show notification if checked
+        if isChecked then
+            notification.Visible = true
+            wait(2) -- Show the notification for 2 seconds
+            notification.Visible = false
+        end
     end)
 end
 
