@@ -196,7 +196,6 @@ function UILibrary:CreateTextbox(section, placeholderText, callback)
 end
 
 function UILibrary:CreateToggle(section, labelText, callback)
-function UILibrary:CreateToggle(section, labelText, callback)
     local toggle = Instance.new("Frame")
     toggle.Size = UDim2.new(0, 120, 0, 40)
     toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
