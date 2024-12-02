@@ -1,69 +1,160 @@
--- Simple UI Library Example
-
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
+-- Helper function to create a UI Corner (Rounded edges)
+local function addUICorner(parent, radius)
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0, radius)
+    uiCorner.Parent = parent
+    return uiCorner
+end
+
+-- Helper function to add a UI stroke (Border effect)
+local function addUIStroke(parent, color, thickness)
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Color = color
+    uiStroke.Thickness = thickness
+    uiStroke.Parent = parent
+    return uiStroke
+end
+
+-- Function to make a GUI draggable
+local function makeDraggable(frame, handle)
+    handle = handle or frame
+    local dragging, dragInput, startPos, dragStart
+
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
 -- Function to create a new window (ScreenGui)
 function UILibrary:NewWindow(title)
-    -- Create the ScreenGui container
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
     -- Create the window frame
     local window = Instance.new("Frame")
-    window.Size = UDim2.new(0, 400, 0, 300)  -- Set window size
-    window.Position = UDim2.new(0.5, -200, 0.5, -150)  -- Center the window
+    window.Size = UDim2.new(0, 400, 0, 300)
+    window.Position = UDim2.new(0.5, -200, 0.5, -150)
     window.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    window.BorderSizePixel = 0
     window.Parent = screenGui
 
-    -- Create the title label
+    -- Add rounded corners and UI stroke
+    addUICorner(window, 10)
+    addUIStroke(window, Color3.fromRGB(80, 80, 80), 2)
+
+    -- Title bar
+    local titleBar = Instance.new("Frame")
+    titleBar.Size = UDim2.new(1, 0, 0, 40)
+    titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    titleBar.BorderSizePixel = 0
+    titleBar.Parent = window
+    addUICorner(titleBar, 10)
+
+    -- Title label
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0, 30)
+    titleLabel.Size = UDim2.new(1, 0, 1, 0)
     titleLabel.Text = title
     titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextSize = 18
-    titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    titleLabel.Parent = window
+    titleLabel.TextSize = 20
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Parent = titleBar
+
+    -- Make the window draggable
+    makeDraggable(window, titleBar)
 
     return window
 end
 
--- Function to create a new section inside the window
+-- Function to create a new scrollable section inside the window
 function UILibrary:NewSection(window, sectionName)
-    -- Create the section frame
-    local section = Instance.new("Frame")
-    section.Size = UDim2.new(1, 0, 0, 150)  -- Set section size
-    section.Position = UDim2.new(0, 0, 0, 30)  -- Position below the title
-    section.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    section.Parent = window
-
-    -- Create UIGridLayout for the section to manage element positioning
-    local gridLayout = Instance.new("UIGridLayout")
-    gridLayout.CellSize = UDim2.new(0, 120, 0, 40)  -- Element size
-    gridLayout.CellPadding = UDim2.new(0, 10, 0, 10)  -- Padding between elements
-    gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    gridLayout.Parent = section
+    local scrollFrame = Instance.new("ScrollingFrame")
+    scrollFrame.Size = UDim2.new(1, -20, 0, 200)
+    scrollFrame.Position = UDim2.new(0, 10, 0, 50)
+    scrollFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    scrollFrame.BorderSizePixel = 0
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Dynamically updated
+    scrollFrame.ScrollBarThickness = 6
+    scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+    scrollFrame.Parent = window
+    addUICorner(scrollFrame, 8)
+    addUIStroke(scrollFrame, Color3.fromRGB(90, 90, 90), 1)
 
     -- Section label
     local sectionLabel = Instance.new("TextLabel")
-    sectionLabel.Size = UDim2.new(1, 0, 0, 20)
+    sectionLabel.Size = UDim2.new(1, 0, 0, 30)
     sectionLabel.Text = sectionName
-    sectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    sectionLabel.TextSize = 14
-    sectionLabel.Parent = section
+    sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    sectionLabel.TextSize = 16
+    sectionLabel.Font = Enum.Font.Gotham
+    sectionLabel.BackgroundTransparency = 1
+    sectionLabel.Parent = scrollFrame
 
-    return section
+    -- UI List Layout to organize children
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 10)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = scrollFrame
+
+    -- Automatically update CanvasSize based on children
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+    end)
+
+    return scrollFrame
 end
 
 -- Function to create a button inside the section
 function UILibrary:CreateButton(section, buttonText, callback)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 40)  -- Button size
-    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    button.Size = UDim2.new(0, 120, 0, 40)
+    button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     button.Text = buttonText
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.TextSize = 16
+    button.Font = Enum.Font.Gotham
     button.Parent = section
+    addUICorner(button, 8)
+
+    -- Add hover effects
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    end)
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    end)
 
     -- Button click event
     button.MouseButton1Click:Connect(callback)
@@ -73,11 +164,14 @@ end
 function UILibrary:CreateTextbox(section, placeholderText, callback)
     local textbox = Instance.new("TextBox")
     textbox.Size = UDim2.new(0, 120, 0, 40)
-    textbox.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+    textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     textbox.PlaceholderText = placeholderText
+    textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
     textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
     textbox.TextSize = 16
+    textbox.Font = Enum.Font.Gotham
     textbox.Parent = section
+    addUICorner(textbox, 8)
 
     -- Textbox submit event
     textbox.FocusLost:Connect(function(enterPressed)
@@ -87,5 +181,41 @@ function UILibrary:CreateTextbox(section, placeholderText, callback)
     end)
 end
 
--- Return the library to be used
+-- Function to create a toggle (checkbox) inside the section
+function UILibrary:CreateToggle(section, labelText, callback)
+    local toggle = Instance.new("Frame")
+    toggle.Size = UDim2.new(0, 120, 0, 40)
+    toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    toggle.Parent = section
+    addUICorner(toggle, 8)
+
+    -- Checkbox
+    local checkbox = Instance.new("TextButton")
+    checkbox.Size = UDim2.new(0, 30, 0, 30)
+    checkbox.Position = UDim2.new(0, 5, 0, 5)
+    checkbox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    checkbox.Text = ""
+    checkbox.Parent = toggle
+    addUICorner(checkbox, 6)
+
+    -- Label
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -40, 0, 30)
+    label.Position = UDim2.new(0, 35, 0, 5)
+    label.Text = labelText
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 16
+    label.Font = Enum.Font.Gotham
+    label.BackgroundTransparency = 1
+    label.Parent = toggle
+
+    local isChecked = false
+
+    checkbox.MouseButton1Click:Connect(function()
+        isChecked = not isChecked
+        checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
+        callback(isChecked)
+    end)
+end
+
 return UILibrary
