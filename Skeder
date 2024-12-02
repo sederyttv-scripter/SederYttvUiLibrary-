@@ -103,7 +103,7 @@ function UILibrary:NewWindow(title)
 end
 
 function UILibrary:NewSection(window, sectionName)
-    local scrollFrame = Instance.new("Frame")
+    local scrollFrame = Instance.new("ScrollingFrame")
     scrollFrame.Size = UDim2.new(1, -20, 0, 200)
     scrollFrame.Position = UDim2.new(0, 10, 0, 50)
     scrollFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -169,26 +169,6 @@ function UILibrary:CreateButton(section, buttonText, callback)
     button.MouseButton1Click:Connect(function()
         clickSound:Play() -- Play the sound
         callback() -- Call the provided function
-    end)
-end
-
-function UILibrary:CreateTextbox(section, placeholderText, callback)
-    local textbox = Instance.new("TextBox")
-    textbox.Size = UDim2.new(1, 0, 0, 40)  -- Replace this line to make it fit the full width
-    textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    textbox.PlaceholderText = placeholderText
-    textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
-    textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textbox.TextSize = 16
-    textbox.Font = Enum.Font.Gotham
-    textbox.Parent = section
-    addUICorner(textbox, 8)
-
-    -- Textbox submit event
-    textbox.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            callback(textbox.Text)
-        end
     end)
 end
 
@@ -279,6 +259,26 @@ function UILibrary:CreateDropdown(section, labelText, options, callback)
         clickSound:Play()
         optionsFrame.Visible = not optionsFrame.Visible
         dropdownButton.Text = optionsFrame.Visible and "▲" or "▼"  -- Change the button text
+    end)
+end
+
+function UILibrary:CreateTextbox(section, placeholderText, callback)
+    local textbox = Instance.new("TextBox")
+    textbox.Size = UDim2.new(1, 0, 0, 40)  -- Replace this line to make it fit the full width
+    textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    textbox.PlaceholderText = placeholderText
+    textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
+    textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textbox.TextSize = 16
+    textbox.Font = Enum.Font.Gotham
+    textbox.Parent = section
+    addUICorner(textbox, 8)
+
+    -- Textbox submit event
+    textbox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(textbox.Text)
+        end
     end)
 end
 
