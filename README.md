@@ -9,16 +9,12 @@ local UILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/sed
 # To load the UI, (required)
 
 ```lua
-- Create a new window
-local window = UILibrary:NewWindow("My UI")
+-- Create a window
+local ui = UILibrary:NewWindow("Example Window")
 ```
 
 # to create a tabs
 ```
--- Create a section inside the window
-local section = UILibrary:NewSection(window, "My Section")
-
---[[
-Name = <string> - The name of the section.
-]]
+-- Create a section
+local section = UILibrary:NewSection(ui, "TabName")
 ```
