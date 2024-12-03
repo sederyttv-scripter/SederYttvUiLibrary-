@@ -190,7 +190,7 @@ function UILibrary:CreateButton(section, buttonText, callback)
     end)
 end
 
-function UILibrary:CreateSlider(section, sliderText, min, max, default, callback, snap)
+function UILibrary:CreateSlider(section, sliderText, min, max, default, callback)
     -- Main slider frame
     local sliderFrame = Instance.new("Frame")
     sliderFrame.Size = UDim2.new(1, 0, 0, 50) -- Adjust height as needed
@@ -235,46 +235,27 @@ function UILibrary:CreateSlider(section, sliderText, min, max, default, callback
     sliderKnob.Parent = sliderBar
     addUICorner(sliderKnob, 8)
 
-    -- Tooltip
-    local tooltip = Instance.new("TextLabel")
-    tooltip.Size = UDim2.new(0, 60, 0, 20)
-    tooltip.Position = UDim2.new(1, -60, 0, 5)
-    tooltip.Text = tostring(default)
-    tooltip.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tooltip.TextSize = 16
-    tooltip.Font = Enum.Font.Gotham
-    tooltip.BackgroundTransparency = 1
-    tooltip.TextXAlignment = Enum.TextXAlignment.Right
-    tooltip.Visible = false
-    tooltip.Parent = sliderFrame
+    -- Value label
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Size = UDim2.new(0, 50, 0, 20)
+    valueLabel.Position = UDim2.new(1, -50, 0, 5)
+    valueLabel.Text = tostring(default)
+    valueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    valueLabel.TextSize = 16
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.Parent = sliderFrame
 
     -- Update slider position and value
     local function updateSlider(input)
         local scale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-        
-        -- Optional: Snap the value
-        if snap then
-            scale = math.round(scale * (max - min)) / (max - min)  -- Adjust for snap steps
-        end
-
         sliderFill.Size = UDim2.new(scale, 0, 1, 0)
         sliderKnob.Position = UDim2.new(scale, -8, 0.5, -4)
-
         local value = math.floor(min + (max - min) * scale)
-        tooltip.Text = tostring(value)
-
-        -- Update callback
+        valueLabel.Text = tostring(value)
         callback(value)
     end
-
-    -- Show tooltip when hovered
-    sliderKnob.MouseEnter:Connect(function()
-        tooltip.Visible = true
-    end)
-
-    sliderKnob.MouseLeave:Connect(function()
-        tooltip.Visible = false
-    end)
 
     -- Input handling
     sliderKnob.InputBegan:Connect(function(input)
