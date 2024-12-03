@@ -1,7 +1,6 @@
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
--- Helper function to create a UI Corner (Rounded edges)
 local function addUICorner(parent, radius)
     local uiCorner = Instance.new("UICorner")
     uiCorner.CornerRadius = UDim.new(0, radius)
@@ -9,7 +8,6 @@ local function addUICorner(parent, radius)
     return uiCorner
 end
 
--- Helper function to add a UI stroke (Border effect)
 local function addUIStroke(parent, color, thickness)
     local uiStroke = Instance.new("UIStroke")
     uiStroke.Color = color
@@ -18,12 +16,10 @@ local function addUIStroke(parent, color, thickness)
     return uiStroke
 end
 
--- Function to make a GUI draggable
 local function makeDraggable(frame, handle)
     handle = handle or frame
     local dragging, dragInput, startPos, dragStart
 
-    -- Updates the frame position
     local function update(input)
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(
@@ -61,12 +57,10 @@ local function makeDraggable(frame, handle)
     end)
 end
 
--- Function to create a new window (ScreenGui)
 function UILibrary:NewWindow(title)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-    -- Create the window frame
     local window = Instance.new("Frame")
     window.Size = UDim2.new(0, 400, 0, 300)
     window.Position = UDim2.new(0.5, -200, 0.5, -150)
@@ -74,11 +68,9 @@ function UILibrary:NewWindow(title)
     window.BorderSizePixel = 0
     window.Parent = screenGui
 
-    -- Add rounded corners and UI stroke
     addUICorner(window, 10)
     addUIStroke(window, Color3.fromRGB(80, 80, 80), 2)
 
-    -- Title bar
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 40)
     titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -86,7 +78,6 @@ function UILibrary:NewWindow(title)
     titleBar.Parent = window
     addUICorner(titleBar, 10)
 
-    -- Title label
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Size = UDim2.new(1, 0, 1, 0)
     titleLabel.Text = title
@@ -96,25 +87,21 @@ function UILibrary:NewWindow(title)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Parent = titleBar
 
-    -- Make the window draggable
     makeDraggable(window, titleBar)
 
-    -- Container for all sections
     local sectionContainer = Instance.new("ScrollingFrame")
-    sectionContainer.Size = UDim2.new(1, -10, 1, -50) -- Adjust to fit below the title bar
+    sectionContainer.Size = UDim2.new(1, -10, 1, -50)
     sectionContainer.Position = UDim2.new(0, 5, 0, 45)
     sectionContainer.BackgroundTransparency = 1
     sectionContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
     sectionContainer.ScrollBarThickness = 6
     sectionContainer.Parent = window
 
-    -- Layout for sections
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 10)
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Parent = sectionContainer
 
-    -- Dynamically adjust the canvas size
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         sectionContainer.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
     end)
@@ -127,14 +114,13 @@ function UILibrary:NewSection(container, sectionName)
     scrollFrame.Size = UDim2.new(1, -20, 0, 200)
     scrollFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     scrollFrame.BorderSizePixel = 0
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Dynamically updated
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     scrollFrame.ScrollBarThickness = 6
     scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
     scrollFrame.Parent = container
     addUICorner(scrollFrame, 8)
     addUIStroke(scrollFrame, Color3.fromRGB(90, 90, 90), 1)
 
-    -- Section label
     local sectionLabel = Instance.new("TextLabel")
     sectionLabel.Size = UDim2.new(1, 0, 0, 30)
     sectionLabel.Text = sectionName
@@ -144,13 +130,11 @@ function UILibrary:NewSection(container, sectionName)
     sectionLabel.BackgroundTransparency = 1
     sectionLabel.Parent = scrollFrame
 
-    -- UI List Layout to organize children
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 10)
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Parent = scrollFrame
 
-    -- Automatically update CanvasSize based on children
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
     end)
@@ -160,7 +144,7 @@ end
 
 function UILibrary:CreateButton(section, buttonText, callback)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, 0, 0, 40)  -- Set width to fill the section and height to 40
+    button.Size = UDim2.new(1, 0, 0, 40)
     button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     button.Text = buttonText
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -169,7 +153,6 @@ function UILibrary:CreateButton(section, buttonText, callback)
     button.Parent = section
     addUICorner(button, 8)
 
-    -- Add hover effects
     button.MouseEnter:Connect(function()
         button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     end)
@@ -177,28 +160,24 @@ function UILibrary:CreateButton(section, buttonText, callback)
         button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end)
 
-    -- Add click sound
     local clickSound = Instance.new("Sound")
-    clickSound.SoundId = "rbxassetid://876939830" -- Click sound asset
+    clickSound.SoundId = "rbxassetid://876939830"
     clickSound.Volume = 1.5
     clickSound.Parent = button
 
-    -- Button click event
     button.MouseButton1Click:Connect(function()
-        clickSound:Play() -- Play the sound
-        callback() -- Call the provided function
+        clickSound:Play()
+        callback()
     end)
 end
 
 function UILibrary:CreateSlider(section, sliderText, min, max, default, callback)
-    -- Main slider frame
     local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(1, 0, 0, 50) -- Adjust height as needed
+    sliderFrame.Size = UDim2.new(1, 0, 0, 50)
     sliderFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     sliderFrame.Parent = section
     addUICorner(sliderFrame, 8)
 
-    -- Label for slider
     local sliderLabel = Instance.new("TextLabel")
     sliderLabel.Size = UDim2.new(1, -60, 0, 20)
     sliderLabel.Position = UDim2.new(0, 10, 0, 5)
@@ -210,7 +189,6 @@ function UILibrary:CreateSlider(section, sliderText, min, max, default, callback
     sliderLabel.TextXAlignment = Enum.TextXAlignment.Left
     sliderLabel.Parent = sliderFrame
 
-    -- Slider bar
     local sliderBar = Instance.new("Frame")
     sliderBar.Size = UDim2.new(1, -20, 0, 8)
     sliderBar.Position = UDim2.new(0, 10, 0.5, 0)
@@ -219,14 +197,12 @@ function UILibrary:CreateSlider(section, sliderText, min, max, default, callback
     sliderBar.Parent = sliderFrame
     addUICorner(sliderBar, 8)
 
-    -- Slider fill
     local sliderFill = Instance.new("Frame")
     sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
     sliderFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     sliderFill.Parent = sliderBar
     addUICorner(sliderFill, 8)
 
-    -- Draggable knob
     local sliderKnob = Instance.new("Frame")
     sliderKnob.Size = UDim2.new(0, 16, 1, 8)
     sliderKnob.Position = UDim2.new(sliderFill.Size.X.Scale, -8, 0.5, -4)
@@ -235,7 +211,6 @@ function UILibrary:CreateSlider(section, sliderText, min, max, default, callback
     sliderKnob.Parent = sliderBar
     addUICorner(sliderKnob, 8)
 
-    -- Value label
     local valueLabel = Instance.new("TextLabel")
     valueLabel.Size = UDim2.new(0, 50, 0, 20)
     valueLabel.Position = UDim2.new(1, -50, 0, 5)
@@ -247,7 +222,6 @@ function UILibrary:CreateSlider(section, sliderText, min, max, default, callback
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
     valueLabel.Parent = sliderFrame
 
-    -- Update slider position and value
     local function updateSlider(input)
         local scale = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(scale, 0, 1, 0)
@@ -257,7 +231,6 @@ function UILibrary:CreateSlider(section, sliderText, min, max, default, callback
         callback(value)
     end
 
-    -- Input handling
     sliderKnob.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             local conn
@@ -284,7 +257,7 @@ end
 
 function UILibrary:CreateTextbox(section, placeholderText, callback)
     local textbox = Instance.new("TextBox")
-    textbox.Size = UDim2.new(1, 0, 0, 40)  -- Replace this line to make it fit the full width
+    textbox.Size = UDim2.new(1, 0, 0, 40)
     textbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     textbox.PlaceholderText = placeholderText
     textbox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
@@ -294,7 +267,6 @@ function UILibrary:CreateTextbox(section, placeholderText, callback)
     textbox.Parent = section
     addUICorner(textbox, 8)
 
-    -- Textbox submit event
     textbox.FocusLost:Connect(function(enterPressed)
         if enterPressed then
             callback(textbox.Text)
@@ -304,7 +276,7 @@ end
 
 function UILibrary:CreateDropdown(section, dropdownName, options, callback)
     local dropdown = Instance.new("Frame")
-    dropdown.Size = UDim2.new(1, 0, 0, 40) -- Adjust height for dropdown button
+    dropdown.Size = UDim2.new(1, 0, 0, 40)
     dropdown.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     dropdown.Parent = section
     addUICorner(dropdown, 8)
@@ -341,7 +313,7 @@ function UILibrary:CreateDropdown(section, dropdownName, options, callback)
     scrollingFrame.Size = UDim2.new(1, -10, 1, -10)
     scrollingFrame.Position = UDim2.new(0, 5, 0, 5)
     scrollingFrame.BackgroundTransparency = 1
-    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Dynamically updated
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     scrollingFrame.ScrollBarThickness = 6
     scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
     scrollingFrame.Parent = dropdownContainer
@@ -355,9 +327,8 @@ function UILibrary:CreateDropdown(section, dropdownName, options, callback)
         scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
     end)
 
-    -- Add a sound instance for the dropdown
     local clickSound = Instance.new("Sound")
-    clickSound.SoundId = "rbxassetid://876939830" -- Replace with desired sound asset
+    clickSound.SoundId = "rbxassetid://876939830"
     clickSound.Volume = 1.5
     clickSound.Parent = dropdown
 
@@ -372,11 +343,10 @@ function UILibrary:CreateDropdown(section, dropdownName, options, callback)
         optionButton.Parent = scrollingFrame
         addUICorner(optionButton, 6)
 
-        -- Play sound and callback when an option is selected
         optionButton.MouseButton1Click:Connect(function()
             dropdownButton.Text = option
             callback(option)
-            clickSound:Play() -- Play click sound
+            clickSound:Play()
             dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), "Out", "Quad", 0.3, true)
             dropdownArrow.Text = "▼"
         end)
@@ -398,24 +368,22 @@ end
 
 function UILibrary:CreateToggle(section, labelText, callback)
     local toggle = Instance.new("Frame")
-    toggle.Size = UDim2.new(1, 0, 0, 40)  -- Adjust width to 100% of parent
+    toggle.Size = UDim2.new(1, 0, 0, 40)
     toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     toggle.Parent = section
     addUICorner(toggle, 8)
 
-    -- Checkbox
     local checkbox = Instance.new("TextButton")
-    checkbox.Size = UDim2.new(0, 30, 0, 30)  -- Keep the size of the checkbox small
-    checkbox.Position = UDim2.new(0, 5, 0, 5)  -- Position it at the left side
+    checkbox.Size = UDim2.new(0, 30, 0, 30)
+    checkbox.Position = UDim2.new(0, 5, 0, 5)
     checkbox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     checkbox.Text = ""
     checkbox.Parent = toggle
     addUICorner(checkbox, 6)
 
-    -- Label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the rest of the space
-    label.Position = UDim2.new(0, 35, 0, 0)  -- Position the label next to the checkbox
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 35, 0, 0)
     label.Text = labelText
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 16
@@ -427,13 +395,11 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     local isChecked = false
 
-    -- Notification Sound
     local notificationSound = Instance.new("Sound")
-    notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
+    notificationSound.SoundId = "rbxassetid://17582299860"
     notificationSound.Volume = 5
     notificationSound.Parent = checkbox
 
-    -- Create the notification
     local notification = Instance.new("TextLabel")
     notification.Size = UDim2.new(0, 250, 0, 60)
     notification.Position = UDim2.new(0.5, -125, 0, 20)
@@ -446,12 +412,10 @@ function UILibrary:CreateToggle(section, labelText, callback)
     notification.Visible = false
     notification.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
 
-    -- Add rounded corners
     local notificationCorner = Instance.new("UICorner")
     notificationCorner.CornerRadius = UDim.new(0, 12)
     notificationCorner.Parent = notification
 
-    -- Add a gradient to the background
     local notificationGradient = Instance.new("UIGradient")
     notificationGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)),
@@ -460,13 +424,11 @@ function UILibrary:CreateToggle(section, labelText, callback)
     notificationGradient.Rotation = 45
     notificationGradient.Parent = notification
 
-    -- Add a stroke (border)
     local notificationStroke = Instance.new("UIStroke")
     notificationStroke.Color = Color3.fromRGB(255, 255, 255)
     notificationStroke.Thickness = 3
     notificationStroke.Parent = notification
 
-    -- Add a glowing shadow effect
     local notificationShadow = Instance.new("ImageLabel")
     notificationShadow.Size = UDim2.new(1, 16, 1, 16)
     notificationShadow.Position = UDim2.new(0, -8, 0, -8)
@@ -478,23 +440,19 @@ function UILibrary:CreateToggle(section, labelText, callback)
     notificationShadow.Parent = notification
     notificationShadow.ZIndex = notification.ZIndex - 1
 
-    -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
         isChecked = not isChecked
         checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
         callback(isChecked)
 
-        -- Play sound
         notificationSound:Play()
 
-        -- Update notification text based on toggle state
         if isChecked then
             notification.Text = "Toggle is ON"
         else
             notification.Text = "Toggle is OFF"
         end
 
-        -- Show the notification
         notification.Visible = true
         wait(0.5)  -- Show for 0.5 seconds
         notification.Visible = false
