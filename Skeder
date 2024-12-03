@@ -192,6 +192,92 @@ function UILibrary:CreateTextbox(section, placeholderText, callback)
     end)
 end
 
+function UILibrary:CreateDropdown(section, dropdownName, options, callback)
+    local dropdown = Instance.new("Frame")
+    dropdown.Size = UDim2.new(1, 0, 0, 40) -- Adjust height for dropdown button
+    dropdown.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    dropdown.Parent = section
+    addUICorner(dropdown, 8)
+
+    local dropdownButton = Instance.new("TextButton")
+    dropdownButton.Size = UDim2.new(1, 0, 1, 0)
+    dropdownButton.BackgroundTransparency = 1
+    dropdownButton.Text = dropdownName
+    dropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    dropdownButton.TextSize = 16
+    dropdownButton.Font = Enum.Font.Gotham
+    dropdownButton.Parent = dropdown
+
+    local dropdownArrow = Instance.new("TextLabel")
+    dropdownArrow.Size = UDim2.new(0, 20, 0, 20)
+    dropdownArrow.Position = UDim2.new(1, -25, 0.5, -10)
+    dropdownArrow.BackgroundTransparency = 1
+    dropdownArrow.Text = "▼"
+    dropdownArrow.TextColor3 = Color3.fromRGB(200, 200, 200)
+    dropdownArrow.TextSize = 16
+    dropdownArrow.Font = Enum.Font.Gotham
+    dropdownArrow.Parent = dropdown
+
+    local dropdownContainer = Instance.new("Frame")
+    dropdownContainer.Size = UDim2.new(1, 0, 0, 0)
+    dropdownContainer.Position = UDim2.new(0, 0, 1, 5)
+    dropdownContainer.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    dropdownContainer.ClipsDescendants = true
+    dropdownContainer.Parent = dropdown
+    addUICorner(dropdownContainer, 8)
+    addUIStroke(dropdownContainer, Color3.fromRGB(90, 90, 90), 1)
+
+    local scrollingFrame = Instance.new("ScrollingFrame")
+    scrollingFrame.Size = UDim2.new(1, -10, 1, -10)
+    scrollingFrame.Position = UDim2.new(0, 5, 0, 5)
+    scrollingFrame.BackgroundTransparency = 1
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Dynamically updated
+    scrollingFrame.ScrollBarThickness = 6
+    scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+    scrollingFrame.Parent = dropdownContainer
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = scrollingFrame
+
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+    end)
+
+    for _, option in ipairs(options) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Size = UDim2.new(1, 0, 0, 30)
+        optionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+        optionButton.Text = option
+        optionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        optionButton.TextSize = 16
+        optionButton.Font = Enum.Font.Gotham
+        optionButton.Parent = scrollingFrame
+        addUICorner(optionButton, 6)
+
+        optionButton.MouseButton1Click:Connect(function()
+            dropdownButton.Text = option
+            callback(option)
+            dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), "Out", "Quad", 0.3, true)
+            dropdownArrow.Text = "▼"
+        end)
+    end
+
+    local isOpen = false
+
+    dropdownButton.MouseButton1Click:Connect(function()
+        isOpen = not isOpen
+        if isOpen then
+            dropdownContainer:TweenSize(UDim2.new(1, 0, 0, math.min(150, layout.AbsoluteContentSize.Y)), "Out", "Quad", 0.3, true)
+            dropdownArrow.Text = "▲"
+        else
+            dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), "Out", "Quad", 0.3, true)
+            dropdownArrow.Text = "▼"
+        end
+    end)
+end
+
 function UILibrary:CreateToggle(section, labelText, callback)
     local toggle = Instance.new("Frame")
     toggle.Size = UDim2.new(1, 0, 0, 40)  -- Adjust width to 100% of parent
@@ -210,76 +296,91 @@ function UILibrary:CreateToggle(section, labelText, callback)
 
     -- Label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -40, 1, 0)  -- Adjust size to fit text and checkbox
-    label.Position = UDim2.new(0, 40, 0, 0)
+    label.Size = UDim2.new(1, -40, 1, 0)  -- Make the label fill the rest of the space
+    label.Position = UDim2.new(0, 35, 0, 0)  -- Position the label next to the checkbox
     label.Text = labelText
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 16
     label.Font = Enum.Font.Gotham
     label.BackgroundTransparency = 1
+    label.TextWrapped = true
+    label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = toggle
 
-    -- Toggle the checkbox
     local isChecked = false
+
+    -- Notification Sound
+    local notificationSound = Instance.new("Sound")
+    notificationSound.SoundId = "rbxassetid://17582299860" -- Your provided sound asset ID
+    notificationSound.Volume = 5
+    notificationSound.Parent = checkbox
+
+    -- Create the notification
+    local notification = Instance.new("TextLabel")
+    notification.Size = UDim2.new(0, 250, 0, 60)
+    notification.Position = UDim2.new(0.5, -125, 0, 20)
+    notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notification.TextSize = 22
+    notification.Text = "Toggle is OFF"
+    notification.Font = Enum.Font.GothamBold
+    notification.BackgroundTransparency = 0
+    notification.Visible = false
+    notification.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
+
+    -- Add rounded corners
+    local notificationCorner = Instance.new("UICorner")
+    notificationCorner.CornerRadius = UDim.new(0, 12)
+    notificationCorner.Parent = notification
+
+    -- Add a gradient to the background
+    local notificationGradient = Instance.new("UIGradient")
+    notificationGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(85, 170, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 85, 127))
+    }
+    notificationGradient.Rotation = 45
+    notificationGradient.Parent = notification
+
+    -- Add a stroke (border)
+    local notificationStroke = Instance.new("UIStroke")
+    notificationStroke.Color = Color3.fromRGB(255, 255, 255)
+    notificationStroke.Thickness = 3
+    notificationStroke.Parent = notification
+
+    -- Add a glowing shadow effect
+    local notificationShadow = Instance.new("ImageLabel")
+    notificationShadow.Size = UDim2.new(1, 16, 1, 16)
+    notificationShadow.Position = UDim2.new(0, -8, 0, -8)
+    notificationShadow.Image = "rbxassetid://1316045217"
+    notificationShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    notificationShadow.ImageTransparency = 0.6
+    notificationShadow.ScaleType = Enum.ScaleType.Slice
+    notificationShadow.SliceCenter = Rect.new(10, 10, 118, 118)
+    notificationShadow.Parent = notification
+    notificationShadow.ZIndex = notification.ZIndex - 1
+
+    -- Toggle logic
     checkbox.MouseButton1Click:Connect(function()
         isChecked = not isChecked
         checkbox.BackgroundColor3 = isChecked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
-        callback(isChecked)  -- Pass the state to the callback
+        callback(isChecked)
+
+        -- Play sound
+        notificationSound:Play()
+
+        -- Update notification text based on toggle state
+        if isChecked then
+            notification.Text = "Toggle is ON"
+        else
+            notification.Text = "Toggle is OFF"
+        end
+
+        -- Show the notification
+        notification.Visible = true
+        wait(0.5)  -- Show for 0.5 seconds
+        notification.Visible = false
     end)
-end
-
--- Function to create Tabs (Added code)
-function UILibrary:AddTabs(window, tabNames)
-    local tabContainer = Instance.new("Frame")
-    tabContainer.Size = UDim2.new(1, 0, 0, 50)
-    tabContainer.Position = UDim2.new(0, 0, 0, 40) -- Position below the title bar
-    tabContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    tabContainer.Parent = window
-    addUICorner(tabContainer, 8)
-
-    -- Tab buttons
-    local tabButtons = {}
-    local activeTabIndex = 1  -- Default active tab
-    local tabContentFrame = Instance.new("Frame")
-    tabContentFrame.Size = UDim2.new(1, 0, 1, -90) -- Fill remaining space
-    tabContentFrame.Position = UDim2.new(0, 0, 0, 90) -- Below the tab bar
-    tabContentFrame.BackgroundTransparency = 1
-    tabContentFrame.Parent = window
-
-    -- Create the content for each tab
-    local tabContents = {}
-    for i, tabName in ipairs(tabNames) do
-        -- Create a tab button
-        local tabButton = Instance.new("TextButton")
-        tabButton.Size = UDim2.new(1/#tabNames, 0, 1, 0)
-        tabButton.Position = UDim2.new((i-1)/#tabNames, 0, 0, 0)
-        tabButton.Text = tabName
-        tabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        tabButton.Font = Enum.Font.GothamBold
-        tabButton.TextSize = 16
-        tabButton.Parent = tabContainer
-        addUICorner(tabButton, 8)
-
-        -- Create the content for the tab
-        local tabContent = Instance.new("Frame")
-        tabContent.Size = UDim2.new(1, 0, 1, 0)
-        tabContent.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        tabContent.Visible = (i == activeTabIndex)
-        tabContent.Parent = tabContentFrame
-        addUICorner(tabContent, 8)
-        
-        tabContents[i] = tabContent
-
-        -- Switch to this tab when clicked
-        tabButton.MouseButton1Click:Connect(function()
-            for j, content in ipairs(tabContents) do
-                content.Visible = false
-            end
-            tabContents[i].Visible = true
-            activeTabIndex = i
-        end)
-    end
 end
 
 return UILibrary
