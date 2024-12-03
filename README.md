@@ -25,3 +25,14 @@ UILibrary:CreateButton(section, "Click Me", function()
     print("Button Pressed!")
 end)
 ```
+
+# to create a toggle
+```
+UILibrary:CreateToggle(section, "Enable Feature", false, function(value)
+    if value then
+        print("Feature enabled")
+    else
+        print("Feature disabled")
+    end
+end)
+```
