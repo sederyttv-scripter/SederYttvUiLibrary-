@@ -36,3 +36,10 @@ UILibrary:CreateToggle(section, "Enable Feature", false, function(value)
     end
 end)
 ```
+
+# to create a dropdown
+```
+UILibrary:CreateDropdown(section, "Select Option", {"Option 1", "Option 2", "Option 3"}, "Option 1", function(value)
+    print("Selected Option:", value)
+end)
+```
