@@ -245,6 +245,12 @@ function UILibrary:CreateDropdown(section, dropdownName, options, callback)
         scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
     end)
 
+    -- Add a sound instance for the dropdown
+    local clickSound = Instance.new("Sound")
+    clickSound.SoundId = "rbxassetid://876939830" -- Replace with desired sound asset
+    clickSound.Volume = 1.5
+    clickSound.Parent = dropdown
+
     for _, option in ipairs(options) do
         local optionButton = Instance.new("TextButton")
         optionButton.Size = UDim2.new(1, 0, 0, 30)
@@ -256,9 +262,11 @@ function UILibrary:CreateDropdown(section, dropdownName, options, callback)
         optionButton.Parent = scrollingFrame
         addUICorner(optionButton, 6)
 
+        -- Play sound and callback when an option is selected
         optionButton.MouseButton1Click:Connect(function()
             dropdownButton.Text = option
             callback(option)
+            clickSound:Play() -- Play click sound
             dropdownContainer:TweenSize(UDim2.new(1, 0, 0, 0), "Out", "Quad", 0.3, true)
             dropdownArrow.Text = "▼"
         end)
