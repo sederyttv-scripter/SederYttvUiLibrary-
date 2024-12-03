@@ -18,3 +18,10 @@ local ui = UILibrary:NewWindow("Example Window")
 -- Create a section
 local section = UILibrary:NewSection(ui, "TabName")
 ```
+
+# to create a button 
+```
+UILibrary:CreateButton(section, "Click Me", function()
+    print("Button Pressed!")
+end)
+```
